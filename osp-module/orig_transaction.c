@@ -210,11 +210,12 @@ int tryallosproutes(struct sip_msg* msg, char* ignore1, char* ignore2) {
 		"  valid until: %s\n"
 		"   time limit: %i seconds\n"
 		"       callid: %.*s\n"
+		"calling number: %s\n"
 		"called number: %s\n"
 		"  destination: %s\n"
 		"   network id: %s\n"
 		"bn token size: %i\n",
-		count, validafter, validuntil, timelimit, sizeofcallid, callid, callednumber, 
+		count, validafter, validuntil, timelimit, sizeofcallid, callid, callingnumber, callednumber, 
 		destination, port, sizeoftoken);
 
 
