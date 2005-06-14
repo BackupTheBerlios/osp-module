@@ -161,10 +161,11 @@ int getOspHeader(struct sip_msg* msg, char* token, int* sizeoftoken) {
 			if (strncasecmp(hf->name.s, OSP_HEADER, OSP_HEADER_LEN) == 0) {
 				if ( (code=OSPPBase64Decode(hf->body.s, hf->body.len, token, sizeoftoken)) == 0) {
 					retVal = 0;
-					break;
 				} else {
 					LOG(L_ERR, "osp: getOspHeader: failed to base64 decode OSP token, reason - %d\n",code);
+					LOG(L_ERR, "osp: header %.*s\n",hf->body.len,hf->body.s);
 				}
+				break;
 			}		
 		} 
 	}
