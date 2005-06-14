@@ -54,24 +54,24 @@ extern int   _timeout;
 extern int   _crypto_hw_support;
 extern OSPTPROVHANDLE _provider;
 
-OSPTCERT localcert;
-OSPTCERT cacert;
-OSPTPRIVATEKEY privatekey;
-OSPTCERT *cacerts[1];
-unsigned char KeyBuf[4096],LocalCertBuf[4096],CACertBuf[4096];
 
 int setup_provider() {
 
 	int result = 1;
+	OSPTCERT localcert;
+	OSPTCERT cacert;
+	OSPTPRIVATEKEY privatekey;
+	OSPTCERT *cacerts[1];
+
 	cacerts[0] = &cacert;
 
 	if ( (result = OSPPInit(_crypto_hw_support)) != 0 ) {
 		LOG(L_ERR, "ERROR: osp: setup_provider: could not initalize libosp. (%i)\n", result);
-	} else if ( OSPPUtilLoadPEMPrivateKey (_private_key, &privatekey, KeyBuf) != 0 ) {
+	} else if ( OSPPUtilLoadPEMPrivateKey (_private_key, &privatekey) != 0 ) {
 		LOG(L_ERR, "ERROR: osp: setup_provider: could not load private key from %s\n", _private_key);
-	} else if ( OSPPUtilLoadPEMCert (_local_certificate, &localcert, LocalCertBuf) != 0 ) {
+	} else if ( OSPPUtilLoadPEMCert (_local_certificate, &localcert) != 0 ) {
 		LOG(L_ERR, "ERROR: osp: setup_provider: could not load local certificate from %s\n",_local_certificate);
-	} else	if ( OSPPUtilLoadPEMCert (_ca_certificate, &cacert, CACertBuf) != 0 ) {
+	} else	if ( OSPPUtilLoadPEMCert (_ca_certificate, &cacert) != 0 ) {
 		LOG(L_ERR, "ERROR: osp: setup_provider: could not load CA certificate from %s\n", _ca_certificate);
 	} else if ( 0 != (result = OSPPProviderNew(
 				2,
@@ -97,6 +97,19 @@ int setup_provider() {
 		LOG(L_INFO,"Successfully created a new (per process) provider object, handle (%d)\n",_provider);
 		result = 0;
 	}
+
+	/* Free space allocated while loading crypto information from PEM-encoded files */
+	if (localcert.CertData != NULL) {
+		free(localcert.CertData);
+	}
 	
+	if (cacert.CertData != NULL) {
+		free(localcert.CertData);
+	}
+
+	if (privatekey.PrivateKeyData != NULL) {
+		free(privatekey.PrivateKeyData);
+	}
+
 	return result;
 }
