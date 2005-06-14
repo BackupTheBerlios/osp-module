@@ -84,6 +84,8 @@ int validateospheader (struct sip_msg* msg, char* ignore1, char* ignore2) {
 		LOG(L_ERR, "osp: Failed to create a new OSP transaction id %d\n",res);
 	} else if (0 != getFromUserpart(msg, e164_source)) {
 		LOG(L_ERR, "osp: Failed to extract calling number\n");
+	} else if (0 != getToUserpart(msg, e164_dest)) {
+		LOG(L_ERR, "osp: Failed to extract called number\n");
 	} else if (0 != getCallId(msg, &call_id)) {
 		LOG(L_ERR, "osp: Failed to extract call id\n");
 	} else if (0 != getOspHeader(msg, token, &sizeoftoken)) {
