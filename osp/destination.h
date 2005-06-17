@@ -32,14 +32,35 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef OSP_MOD_ORIG_TRANSACTION_H
-#define OSP_MOD_ORIG_TRANSACTION_H
 
-#include "../../sr_module.h"
 
-int requestosprouting(    struct sip_msg*, char*,char*);
-int prepareallosproutes(  struct sip_msg*, char*,char*);
-int preparefirstosproute( struct sip_msg*, char*,char*);
-int preparenextosproute(  struct sip_msg*, char*,char*);
+#ifndef OSP_MOD_DESTINATION_H
+#define OSP_MOD_DESTINATION_H
+
+#include "../../str.h"
+
+struct _osp_dest {
+	char validafter[100];
+	char validuntil[100];
+	char callid[100];
+	char callednumber[100];
+	char callingnumber[100];
+	char destination[100];
+	char destinationdevice[100];
+	char network_id[100];
+	char osptoken[2000];
+	unsigned int sizeofcallid;
+	unsigned int timelimit;
+	unsigned int sizeoftoken;
+	int  failure_reason;
+	int  used;
+};
+
+typedef struct _osp_dest osp_dest;
+
+osp_dest* createDestination();
+void      deleteDestination(osp_dest* dest);
+osp_dest* getDestination();
+int       saveDestination(osp_dest* dest);
 
 #endif

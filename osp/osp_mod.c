@@ -73,10 +73,12 @@ static void dump_parameter();
 
 
 static cmd_export_t cmds[]={
-	{"checkospheader",    checkospheader,    0, 0, REQUEST_ROUTE|FAILURE_ROUTE}, 
-	{"validateospheader", validateospheader, 0, 0, REQUEST_ROUTE|FAILURE_ROUTE}, 
-	{"requestosprouting", requestosprouting, 0, 0, REQUEST_ROUTE|FAILURE_ROUTE}, 
-	{"tryallosproutes",   tryallosproutes,   0, 0, REQUEST_ROUTE|FAILURE_ROUTE}, 
+	{"checkospheader",       checkospheader,       0, 0, REQUEST_ROUTE|FAILURE_ROUTE}, 
+	{"validateospheader",    validateospheader,    0, 0, REQUEST_ROUTE|FAILURE_ROUTE}, 
+	{"requestosprouting",    requestosprouting,    0, 0, REQUEST_ROUTE|FAILURE_ROUTE}, 
+	{"preparefirstosproute", preparefirstosproute, 0, 0, REQUEST_ROUTE|FAILURE_ROUTE}, 
+	{"preparenextosproute",  preparenextosproute,  0, 0, REQUEST_ROUTE|FAILURE_ROUTE}, 
+	{"prepareallosproutes",  prepareallosproutes,  0, 0, REQUEST_ROUTE|FAILURE_ROUTE}, 
 	{0, 0, 0, 0, 0}
 };
 
