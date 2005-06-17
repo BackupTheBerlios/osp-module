@@ -38,5 +38,6 @@
 #include "osp/ospproviderapi.h"
 
 int setup_provider();
+int delete_provider();
 
 #endif

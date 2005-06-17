@@ -113,3 +113,16 @@ int setup_provider() {
 
 	return result;
 }
+
+
+int delete_provider() {
+	int result;
+
+	LOG(L_INFO, "osp: Deleting provider object\n");
+
+	if (0 != (result = OSPPProviderDelete(_provider,0))) {
+		LOG(L_ERR, "ERROR: osp: problems deleting provider object, handle (%d), error (%d)\n",_provider,result);
+	}
+	
+	return result;
+}
