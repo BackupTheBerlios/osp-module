@@ -59,13 +59,21 @@ osp_dest* createDestination() {
 	dest = (osp_dest*) pkg_malloc(sizeof(osp_dest));
 
 	if (dest != NULL) {
-		memset(dest,0,sizeof(osp_dest));
-		dest->sizeofcallid   =  sizeof(dest->callid);
-		dest->sizeoftoken    =  sizeof(dest->osptoken);
+		initDestination(dest);
 	} else {
 		LOG(L_ERR, "osp: createDestination: Failed to allocate memory for an osp destination\n");
 	}
 	
+	return dest;
+}
+
+osp_dest* initDestination(osp_dest* dest) {
+
+	memset(dest,0,sizeof(osp_dest));
+
+	dest->sizeofcallid   =  sizeof(dest->callid);
+	dest->sizeoftoken    =  sizeof(dest->osptoken);
+
 	return dest;
 }
 
@@ -81,17 +89,18 @@ void  deleteDestination(osp_dest* dest) {
  *  Returns: 0 - success, -1 failure
  */
 int saveDestination(osp_dest* dest) {
-	str* wrapper;
+	str wrapper;
 	int status = -1;
 
 	DBG("osp: Saving destination to avp\n");
 
-	wrapper = (str *)pkg_malloc(sizeof(str));
+	wrapper.s   = (char *)dest;
+	wrapper.len = sizeof(osp_dest);
 
-	wrapper->s   = (char *)dest;
-	wrapper->len = sizeof(osp_dest);
-
-	if (add_avp(AVP_NAME_STR|AVP_VAL_STR,(int_str)&OSPDESTS_LABEL,(int_str)wrapper) == 0) {
+	/* add_avp will make a private copy of both the name and value in shared memory.
+	 * memory will be released by TM at the end of the transaction
+	 */
+	if (add_avp(AVP_NAME_STR|AVP_VAL_STR,(int_str)&OSPDESTS_LABEL,(int_str)&wrapper) == 0) {
 		status = 0;
 	} else {
 		LOG(L_ERR, "osp: Failed to add_avp destination\n");

@@ -151,12 +151,12 @@ static int loadosproutes(struct sip_msg* msg, int expectedDestCount) {
 	int res;
 	int count;
 
-	osp_dest* dests[100];
+	osp_dest  dests[MAX_DESTS];
 	osp_dest* dest;
 	
 	for (count = 0; count < expectedDestCount; count++) {
 
-		dest = createDestination();
+		dest = initDestination(&dests[count]);
 
 		if (dest == NULL) {
 			result = MODULE_RETURNCODE_ERROR;
@@ -207,7 +207,6 @@ static int loadosproutes(struct sip_msg* msg, int expectedDestCount) {
 		if (res != 0) {
 			LOG(L_ERR,"osp: getDestination %d failed, expected number %d, current count %d\n",res,expectedDestCount,count);
 			result = MODULE_RETURNCODE_ERROR;
-			deleteDestination(dest);
 			break;
 		}
 
@@ -225,8 +224,6 @@ static int loadosproutes(struct sip_msg* msg, int expectedDestCount) {
 		"bn token size: %i\n",
 		count, dest->validafter, dest->validuntil, dest->timelimit, dest->sizeofcallid, dest->callid, dest->callingnumber, dest->callednumber, 
 		dest->destination, dest->network_id, dest->sizeoftoken);
-
-		dests[count] = dest;
 	}
 
 	/* save destination in reverse order,
@@ -235,7 +232,7 @@ static int loadosproutes(struct sip_msg* msg, int expectedDestCount) {
 	 */
 	if (result == MODULE_RETURNCODE_SUCCESS) {
 		for(count = expectedDestCount -1; count >= 0; count--) {
-			saveDestination(dests[count]);
+			saveDestination(&dests[count]);
 		}
 	}
 
@@ -267,6 +264,7 @@ int preparenextosproute(struct sip_msg* msg, char* ignore1, char* ignore2) {
 	LOG(L_INFO, "osp: Preparing next route\n");
 
 	result = prepareDestination(msg,NEXT_ROUTE);
+
 
 	return result;
 }
