@@ -48,7 +48,7 @@ int   _retry_delay       = 0;
 int   _retry_limit       = 2;
 int   _timeout           = 60 * 1000;
 int   _max_destinations  = 5;
-int   _token_format      = 0;
+int   _token_format      = 2;
 int   _crypto_hw_support = 0;
 char _PRIVATE_KEY[255];
 char _LOCAL_CERTIFICATE[255];
