@@ -109,8 +109,11 @@ int requestosprouting(struct sip_msg* msg, char* ignore1, char* ignore2) {
 	);	
 
 
+	if (strlen(_device_port) > 0) {
+		OSPPTransactionSetNetworkIds(_transaction,_device_port,"");
+	}
+
 	/* try to request authorization */
-	OSPPTransactionSetNetworkIds(_transaction,_device_port,"");
 	res = OSPPTransactionRequestAuthorisation(
 	_transaction,       /* transaction handle */
 	_device_ip,         /* from the configuration file */
