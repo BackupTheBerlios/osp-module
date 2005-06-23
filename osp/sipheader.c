@@ -267,11 +267,13 @@ int rebuildDestionationUri(str *newuri, char *destination, char *port, char *cal
 	*buf++ = 'p';
 	*buf++ = ':';
 
+	/* Don't prepend +
 	if (*callednumber == '+') {
-		/* already starts with "+" */
+		// already starts with
 	} else {
 		*buf++ = '+';
 	}
+	*/
 
 	memcpy(buf, callednumber, sizeofcallednumber);
 	buf += sizeofcallednumber;
