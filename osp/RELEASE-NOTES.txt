@@ -1,0 +1,10 @@
+
+Version: 0.1
+  Implemented routing and authorization validation.  The module can:
+   o Request authorization and routing information from an OSP server
+   o Use provided routes to:
+     o Redirect the originating UI to all routes OR
+     o Try all routes simultaneously using parallel forking OR
+     o Try routes in the order they were received using sequential forking
+   o Add and retrieve P-OSP-Auth-Token header
+   o Perform local validation of the P-OSP-Auth-Token
