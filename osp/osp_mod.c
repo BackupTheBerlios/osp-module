@@ -62,6 +62,9 @@ extern int   _max_destinations;
 extern int   _token_format;
 extern int   _crypto_hw_support;
 extern OSPTPROVHANDLE _provider;
+extern char _PRIVATE_KEY[255];
+extern char _LOCAL_CERTIFICATE[255];
+extern char _CA_CERTIFICATE[255];
 
 /* exported function prototypes */
 static int mod_init(void);
@@ -83,7 +86,6 @@ static cmd_export_t cmds[]={
 };
 
 static param_export_t params[]={ 
-	/* required parameters */
 	{"sp1_uri",           STR_PARAM, &_spURIs[0]},
 	{"sp1_weight",        INT_PARAM, &(_spWeights[0])},
 	{"sp2_uri",           STR_PARAM, &_spURIs[1]},
@@ -92,7 +94,6 @@ static param_export_t params[]={
 	{"device_ip",         STR_PARAM, &_device_ip},
 	{"device_port",       STR_PARAM, &_device_port},
 
-	/* optional parameters */
 	{"private_key",       STR_PARAM, &_private_key},
 	{"local_certificate", STR_PARAM, &_local_certificate},
 	{"ca_certificates",   STR_PARAM, &_ca_certificate},
@@ -125,15 +126,12 @@ static int mod_init(void)
 {
 	DBG("---------------------Initializing OSP module\n");
 
-	/* let the user know what he decided to have as parameters */
-	dump_parameter();
-	
 	if (verify_parameter() != 0) 
 		return 1;   /* at least one parameter incorrect -> error */
 
 	append_hf = find_export("append_hf", 1, 0);
         if (append_hf == NULL) {
-                LOG(L_ERR, "osp: mod_init: could not find append_hf, make shure textops is loaded\n");
+                LOG(L_ERR, "ERROR: osp: mod_init: could not find append_hf, make shure textops is loaded\n");
                 return 1;
         }   
 
@@ -165,38 +163,91 @@ static void mod_destroy() {
 }	
 
 
-#define reportError(paramname) \
-	{ \
-		LOG(L_ERR, "ERROR: osp: mod_init: required parameter %s not set, use modparam in config file!\n", paramname); \
-		error = 1; \
+int verify_parameter() {
+	/* Assume success. If any validation fails the values will be set to -1 */
+	int errorcode = 0;
+
+	LOG(L_INFO,"osp: Initialzing OSP module\n");
+
+	/* Default location for the cert files is in the compile time variable CFG_DIR */
+	if (_private_key == NULL) {
+		sprintf(_PRIVATE_KEY,"%spkey.pem",CFG_DIR);
+		_private_key = _PRIVATE_KEY;
+	} 
+
+	if (_local_certificate == NULL) {
+		sprintf(_LOCAL_CERTIFICATE,"%slocalcert.pem",CFG_DIR);
+		_local_certificate = _LOCAL_CERTIFICATE;
 	}
 
-int verify_parameter() {
-	int error = 0;
-	if (_private_key == NULL) reportError("private_key");
-	if (_local_certificate == NULL) reportError("local_certificate");
-	if (_ca_certificate == NULL) reportError("ca_certificate");
-	if (_device_ip == NULL) reportError("device_ip");
-	if (_device_port == NULL) reportError("device_port");
-	return error;
+	if (_ca_certificate == NULL) {
+		sprintf(_CA_CERTIFICATE,"%scacert_0.pem",CFG_DIR);
+		_ca_certificate = _CA_CERTIFICATE;
+	}
+
+	if (_device_ip == NULL) {
+		_device_ip = "";
+	}
+
+	if (_device_port == NULL) {
+		_device_port = "";
+	}
+
+	if (_max_destinations > MAX_DESTS || _max_destinations < 1) {
+		_max_destinations = 5;	
+		LOG(L_WARN,"WARN: osp: Maximum destinations 'max_destinations' is out of range, re-setting to 5\n");
+	}
+
+	if (_token_format < 0 || _token_format > 2) {
+		_token_format = 0;
+		LOG(L_WARN,"WARN: osp: Token format 'token_format' is out of range, re-setting to 0\n");
+	}
+
+	if (_spURIs[1] == NULL) {
+		_spURIs[1] = _spURIs[0];
+	}
+
+	if (_spURIs[0] == NULL) {
+		LOG(L_ERR,"ERROR: osp: Service Point 1 'sp1_uri' must be configured\n");
+		errorcode = -1;
+	}
+
+	dump_parameter();
+
+	return errorcode;
 }
 
+
 void dump_parameter() {
-	DBG("DEBUG: osp module parameter settings\n"
-	"             private_key: %s\n"
-	"       local_certificate: %s\n"
-	"          ca_certificate: %s\n"
-	"               device_ip: %s\n"
-	"            ssl_lifetime: %i\n"
-	"        persistence: %i\n"
-	"             retry_delay: %i\n"
-	"        retry_limit: %i\n"
-	"            timeout: %i\n"
-	"        max_destinations: %i\n",
+	LOG(L_INFO, "osp: module parameter settings\n"
+	" sp1_uri: '%s'"
+	" sp1_weight: '%d'"
+	" sp2_uri: '%s'"
+	" sp2_weight: '%d'"
+	" device_ip: '%s'"
+	" device_port: '%s'"
+	" private_key: '%s'"
+	" local_certificate: '%s'"
+	" ca_certificates: '%s'"
+	" enable_crypto_hardware_support: '%d'"
+	" token_format: '%d'"
+	" ssl_lifetime: '%d'"
+	" persistence: '%d'"
+	" retry_delay: '%d'"
+	" retry_limit: '%d'"
+	" timeout: '%d'"
+	" max_destinations: '%d'",
+	_spURIs[0],
+	_spWeights[0],
+	_spURIs[1],
+	_spWeights[1],
+	_device_ip,
+	_device_port,
 	_private_key,
 	_local_certificate,
 	_ca_certificate,
-	_device_ip,
+	_crypto_hw_support,
+	_token_format,
 	_ssl_lifetime,
 	_persistence,
 	_retry_delay,

@@ -35,7 +35,7 @@
 
 #include "osp/ospprovider.h"
 
-int   _spWeights[2];
+int   _spWeights[2]      = {1000,1000};
 char* _spURIs[2];
 char* _private_key       = NULL;
 char* _local_certificate = NULL;
@@ -50,5 +50,8 @@ int   _timeout           = 60 * 1000;
 int   _max_destinations  = 5;
 int   _token_format      = 0;
 int   _crypto_hw_support = 0;
+char _PRIVATE_KEY[255];
+char _LOCAL_CERTIFICATE[255];
+char _CA_CERTIFICATE[255];
 
 OSPTPROVHANDLE _provider = -1;
