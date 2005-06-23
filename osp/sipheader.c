@@ -302,9 +302,9 @@ int rebuildDestionationUri(str *newuri, char *destination, char *port, char *cal
 	*buf++ = '0';
 */
 	/* zero terminate for convenience */
-	memcpy(buf, TRANS, TRANS_LEN);
-	buf+=TRANS_LEN;
-	*buf = '\0';
+	//memcpy(buf, TRANS, TRANS_LEN);
+	//buf+=TRANS_LEN;
+	//*buf = '\0';
 	newuri->len = buf - newuri->s;
 
 	DBG("newuri is >%.*s<\n", newuri->len, newuri->s);
