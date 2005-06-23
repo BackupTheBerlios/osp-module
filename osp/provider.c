@@ -94,7 +94,7 @@ int setup_provider() {
 				&_provider))) {
 		LOG(L_ERR, "ERROR: osp: setup_provider: could not create provider. (%i)\n", result);
 	} else {
-		LOG(L_INFO,"Successfully created a new (per process) provider object, handle (%d)\n",_provider);
+		LOG(L_INFO,"osp: Successfully created a new (per process) provider object, handle (%d)\n",_provider);
 		result = 0;
 	}
 

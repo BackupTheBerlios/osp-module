@@ -64,7 +64,7 @@ int getFromUserpart(struct sip_msg* msg, char *fromuser) {
 				skipPlus(fromuser);
 				retVal = 0;
 			} else {
-				LOG(L_ERR, "osp: getFromUserpart: could not parse from uri\n");
+				LOG(L_ERR, "ERROR: osp: getFromUserpart: could not parse from uri\n");
 			}
 		} else {
 			LOG(L_ERR, "ERROR: osp: getFromUserpart: could not parse from header\n");
@@ -92,10 +92,10 @@ int getToUserpart(struct sip_msg* msg, char *touser) {
 			skipPlus(touser);
 			retVal = 0;
 		} else {
-			LOG(L_ERR, "osp: getToUserpart: could not parse to uri\n");
+			LOG(L_ERR, "ERROR: osp: getToUserpart: could not parse to uri\n");
 		}
 	} else {
-		LOG(L_ERR, "osp: getToUserpart: could not find to header\n");
+		LOG(L_ERR, "ERROR: osp: getToUserpart: could not find to header\n");
 	}
 
 	return retVal;
@@ -130,15 +130,15 @@ int addOspHeader(struct sip_msg* msg, char* token, int sizeoftoken) {
 		headerVal.s = headerBuffer;
 		headerVal.len = strlen(headerBuffer);
 
-		LOG(L_INFO,"Setting osp token header field - (%s)\n", headerBuffer);
+		DBG("osp: Setting osp token header field - (%s)\n", headerBuffer);
 
 		if (append_hf(msg,(char *)&headerVal,NULL) > 0) {
 			retVal = 0;
 		} else {
-			LOG(L_ERR, "osp: addOspHeader: failed to append osp header to the message\n");
+			LOG(L_ERR, "ERROR: osp: addOspHeader: failed to append osp header to the message\n");
 		}
 	} else {
-		LOG(L_ERR, "osp: addOspHeader: base64 encoding failed\n");
+		LOG(L_ERR, "ERROR: osp: addOspHeader: base64 encoding failed\n");
 	}
 
 	return retVal;
@@ -162,8 +162,8 @@ int getOspHeader(struct sip_msg* msg, char* token, int* sizeoftoken) {
 				if ( (code=OSPPBase64Decode(hf->body.s, hf->body.len, token, sizeoftoken)) == 0) {
 					retVal = 0;
 				} else {
-					LOG(L_ERR, "osp: getOspHeader: failed to base64 decode OSP token, reason - %d\n",code);
-					LOG(L_ERR, "osp: header %.*s\n",hf->body.len,hf->body.s);
+					LOG(L_ERR, "ERROR: osp: getOspHeader: failed to base64 decode OSP token, reason - %d\n",code);
+					LOG(L_ERR, "ERROR: osp: header %.*s\n",hf->body.len,hf->body.s);
 				}
 				break;
 			}		
@@ -249,7 +249,7 @@ int rebuildDestionationUri(str *newuri, char *destination, char *port, char *cal
 	sizeofdestination = strlen(destination);
 	sizeofport = strlen(port);
 
-	LOG(L_INFO,"rebuilddestionationstr >%s<(%i) >%s<(%i) >%s<(%i)\n",
+	DBG("osp: rebuilddestionationstr >%s<(%i) >%s<(%i) >%s<(%i)\n",
 		callednumber, sizeofcallednumber, destination, sizeofdestination, port, sizeofport);
 
 

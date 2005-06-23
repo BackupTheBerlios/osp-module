@@ -61,7 +61,7 @@ osp_dest* createDestination() {
 	if (dest != NULL) {
 		initDestination(dest);
 	} else {
-		LOG(L_ERR, "osp: createDestination: Failed to allocate memory for an osp destination\n");
+		LOG(L_ERR, "ERROR: osp: createDestination: Failed to allocate memory for an osp destination\n");
 	}
 	
 	return dest;
@@ -103,7 +103,7 @@ int saveDestination(osp_dest* dest) {
 	if (add_avp(AVP_NAME_STR|AVP_VAL_STR,(int_str)&OSPDESTS_LABEL,(int_str)&wrapper) == 0) {
 		status = 0;
 	} else {
-		LOG(L_ERR, "osp: Failed to add_avp destination\n");
+		LOG(L_ERR, "ERROR: osp: Failed to add_avp destination\n");
 	}
 
 	return status;

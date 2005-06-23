@@ -134,10 +134,10 @@ int requestosprouting(struct sip_msg* msg, char* ignore1, char* ignore2) {
 		LOG(L_INFO, "osp: there is %d osp routes.\n", dest_count);
 		valid = loadosproutes(msg,dest_count);
 	} else if (res == 0 && dest_count == 0) {
-		LOG(L_INFO, "osp: there is 0 osp routes\n");
+		LOG(L_INFO, "osp: there is 0 osp routes, the route is blocked\n");
 		valid = MODULE_RETURNCODE_STOPROUTE;
 	} else {
-		LOG(L_ERR, "ERROR: osp: requestosprouting: OSPPTransactionRequestAuthorisation returned %i\n", res);
+		LOG(L_ERR, "ERROR: osp: OSPPTransactionRequestAuthorisation returned %i\n", res);
 		valid = MODULE_RETURNCODE_ERROR;
 	}
 
@@ -208,7 +208,7 @@ static int loadosproutes(struct sip_msg* msg, int expectedDestCount) {
 		}
 		
 		if (res != 0) {
-			LOG(L_ERR,"osp: getDestination %d failed, expected number %d, current count %d\n",res,expectedDestCount,count);
+			LOG(L_ERR,"ERROR: osp: getDestination %d failed, expected number %d, current count %d\n",res,expectedDestCount,count);
 			result = MODULE_RETURNCODE_ERROR;
 			break;
 		}

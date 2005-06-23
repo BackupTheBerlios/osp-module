@@ -81,15 +81,15 @@ int validateospheader (struct sip_msg* msg, char* ignore1, char* ignore2) {
 	valid = MODULE_RETURNCODE_ERROR;
 
 	if (0!= (res=OSPPTransactionNew(_provider, &transaction))) {
-		LOG(L_ERR, "osp: Failed to create a new OSP transaction id %d\n",res);
+		LOG(L_ERR, "ERROR: osp: Failed to create a new OSP transaction id %d\n",res);
 	} else if (0 != getFromUserpart(msg, e164_source)) {
-		LOG(L_ERR, "osp: Failed to extract calling number\n");
+		LOG(L_ERR, "ERROR: osp: Failed to extract calling number\n");
 	} else if (0 != getToUserpart(msg, e164_dest)) {
-		LOG(L_ERR, "osp: Failed to extract called number\n");
+		LOG(L_ERR, "ERROR: osp: Failed to extract called number\n");
 	} else if (0 != getCallId(msg, &call_id)) {
-		LOG(L_ERR, "osp: Failed to extract call id\n");
+		LOG(L_ERR, "ERROR: osp: Failed to extract call id\n");
 	} else if (0 != getOspHeader(msg, token, &sizeoftoken)) {
-		LOG(L_ERR, "osp: Failed to extract OSP authorization token\n");
+		LOG(L_ERR, "ERROR: osp: Failed to extract OSP authorization token\n");
 	} else {
 		LOG(L_INFO, "About to validate OSP token for:\n"
 			"transaction = >%i< \n"
@@ -122,10 +122,10 @@ int validateospheader (struct sip_msg* msg, char* ignore1, char* ignore2) {
 			_token_format);
 	
 		if (res == 0 && authorized == 1) {
-			LOG(L_INFO, "Token is valid for %d\n seconds",time_limit);
+			LOG(L_INFO, "osp: Call is authorized for %d seconds",time_limit);
 			valid = MODULE_RETURNCODE_SUCCESS;
 		} else {
-			LOG(L_ERR,"Token is not valid, code %i\n", res);
+			LOG(L_ERR,"ERROR: osp: Token is not valid, code %i\n", res);
 		}
 	}
 
