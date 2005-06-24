@@ -100,15 +100,15 @@ int setup_provider() {
 
 	/* Free space allocated while loading crypto information from PEM-encoded files */
 	if (localcert.CertData != NULL) {
-		free(localcert.CertData);
+		//free(localcert.CertData);
 	}
 	
 	if (cacert.CertData != NULL) {
-		free(localcert.CertData);
+		//free(localcert.CertData);
 	}
 
 	if (privatekey.PrivateKeyData != NULL) {
-		free(privatekey.PrivateKeyData);
+		//free(privatekey.PrivateKeyData);
 	}
 
 	return result;
