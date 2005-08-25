@@ -43,6 +43,7 @@
 
 extern OSPTPROVHANDLE _provider;
 extern int _token_format;
+extern int _validate_call_id;
 
 
 int checkospheader(struct sip_msg* msg, char* ignore1, char* ignore2) {
@@ -77,6 +78,10 @@ int validateospheader (struct sip_msg* msg, char* ignore1, char* ignore2) {
 	char token[3000];
 	unsigned int sizeoftoken = sizeof(token);
 
+	unsigned callIdLen = 0;
+	unsigned char* callIdVal = "";
+
+	
 
 	valid = MODULE_RETURNCODE_ERROR;
 
@@ -95,12 +100,19 @@ int validateospheader (struct sip_msg* msg, char* ignore1, char* ignore2) {
 			"transaction = >%i< \n"
 			"e164_source = >%s< \n"
 			"e164_dest = >%s< \n"
+			"validate_call_id = >%s< \n"
 			"callid = >%.*s< \n",
 			transaction,
 			e164_source,
 			e164_dest,
+			_validate_call_id==0?"No":"Yes",
 			call_id->ospmCallIdLen,
 			call_id->ospmCallIdVal);
+
+		if (_validate_call_id != 0) {
+			callIdLen = call_id->ospmCallIdLen;
+			callIdVal = call_id->ospmCallIdVal;
+		}
 
 		res = OSPPTransactionValidateAuthorisation(
 			transaction,
@@ -112,8 +124,8 @@ int validateospheader (struct sip_msg* msg, char* ignore1, char* ignore2) {
 			OSPC_E164,
 			e164_dest,
 			OSPC_E164,
-			call_id->ospmCallIdLen,
-			call_id->ospmCallIdVal,
+			callIdLen,
+			callIdVal,
 			sizeoftoken,
 			token,
 			&authorized,

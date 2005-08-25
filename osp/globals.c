@@ -50,6 +50,8 @@ int   _timeout           = 60 * 1000;
 int   _max_destinations  = 5;
 int   _token_format      = 2;
 int   _crypto_hw_support = 0;
+/* by default validate call ids, set to 0 to disable validation */
+int   _validate_call_id  = 1;
 char _PRIVATE_KEY[255];
 char _LOCAL_CERTIFICATE[255];
 char _CA_CERTIFICATE[255];

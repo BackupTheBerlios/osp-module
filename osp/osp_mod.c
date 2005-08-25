@@ -61,6 +61,7 @@ extern int   _timeout;
 extern int   _max_destinations;
 extern int   _token_format;
 extern int   _crypto_hw_support;
+extern int   _validate_call_id;
 extern OSPTPROVHANDLE _provider;
 extern char _PRIVATE_KEY[255];
 extern char _LOCAL_CERTIFICATE[255];
@@ -99,6 +100,8 @@ static param_export_t params[]={
 	{"ca_certificates",   STR_PARAM, &_ca_certificate},
 	{"enable_crypto_hardware_support", 
                               INT_PARAM, &_crypto_hw_support},
+	{"validate_call_id",  INT_PARAM, &(_validate_call_id)},
+
 	{"token_format",      INT_PARAM, &_token_format},
 	{"ssl_lifetime",      INT_PARAM, &_ssl_lifetime},
 	{"persistence",       INT_PARAM, &_persistence},
@@ -236,6 +239,7 @@ void dump_parameter() {
 	" retry_delay: '%d'"
 	" retry_limit: '%d'"
 	" timeout: '%d'"
+	" validate_call_id: '%d'"
 	" max_destinations: '%d'",
 	_spURIs[0],
 	_spWeights[0],
@@ -253,6 +257,7 @@ void dump_parameter() {
 	_retry_delay,
 	_retry_limit,
 	_timeout,
+	_validate_call_id,
 	_max_destinations);
 }
 
