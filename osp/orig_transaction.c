@@ -95,7 +95,7 @@ int requestosprouting(struct sip_msg* msg, char* ignore1, char* ignore2) {
 		"e164_source = >%s< \n"
 		"e164_dest = >%s< \n"
 		"number_callids = >%i< \n"
-		"callids[0] = >%s< \n"
+		"callids[0] = >%.*s< \n"
 		"dest_count = >%i< \n"
 		"\n", 
 		_device_ip,
@@ -104,6 +104,7 @@ int requestosprouting(struct sip_msg* msg, char* ignore1, char* ignore2) {
 		e164_source,
 		e164_dest,
 		number_callids,
+		call_ids[0]->ospmCallIdLen,
 		call_ids[0]->ospmCallIdVal,
 		dest_count
 	);	

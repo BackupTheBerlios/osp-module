@@ -95,10 +95,11 @@ int validateospheader (struct sip_msg* msg, char* ignore1, char* ignore2) {
 			"transaction = >%i< \n"
 			"e164_source = >%s< \n"
 			"e164_dest = >%s< \n"
-			"callid = >%s< \n",
+			"callid = >%.*s< \n",
 			transaction,
 			e164_source,
 			e164_dest,
+			call_id->ospmCallIdLen,
 			call_id->ospmCallIdVal);
 
 		res = OSPPTransactionValidateAuthorisation(
