@@ -39,7 +39,6 @@ include ../../Makefile.defs
 auto_gen=
 NAME=osp.so
 LIBS=-losp -lssl -lcrypto -lpthread -lm
-DEFS+=-DOSP_SDK -D_POSIX_THREADS -D_XOPEN_SOURCE -D_REENTRANT -DOSPC_DEBUG -D_GNU_SOURCE 
 
 include ../../Makefile.modules
 
