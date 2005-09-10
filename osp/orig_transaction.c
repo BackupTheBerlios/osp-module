@@ -283,7 +283,8 @@ int prepareallosproutes(struct sip_msg* msg, char* ignore1, char* ignore2) {
 	     result == MODULE_RETURNCODE_SUCCESS;
 	     result = preparenextosproute(msg,ignore1,ignore2)) {
 	}
-	return result;
+
+	return MODULE_RETURNCODE_SUCCESS;
 }
 
 
