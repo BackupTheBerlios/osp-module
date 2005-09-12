@@ -136,7 +136,7 @@ int requestosprouting(struct sip_msg* msg, char* ignore1, char* ignore2) {
 		valid = loadosproutes(msg,dest_count);
 	} else if (res == 0 && dest_count == 0) {
 		LOG(L_INFO, "osp: there is 0 osp routes, the route is blocked\n");
-		valid = MODULE_RETURNCODE_STOPROUTE;
+		valid = MODULE_RETURNCODE_ERROR;
 	} else {
 		LOG(L_ERR, "ERROR: osp: OSPPTransactionRequestAuthorisation returned %i\n", res);
 		valid = MODULE_RETURNCODE_ERROR;
@@ -311,7 +311,7 @@ int prepareDestination(struct sip_msg* msg, int isFirst) {
 
 	} else {
 		LOG(L_INFO, "osp: There is no more routes\n");
-		result = MODULE_RETURNCODE_STOPROUTE;
+		result = MODULE_RETURNCODE_ERROR;
 	}
 
 	if (newuri.len > 0) {
