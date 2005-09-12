@@ -4,8 +4,8 @@
   <chapterinfo>
     <revhistory>
       <revision>
-        <revnumber>$Revision: 1.1 $</revnumber>
-        <date>$Date: 2005/08/23 02:27:50 $</date>
+        <revnumber>$Revision: 1.2 $</revnumber>
+        <date>$Date: 2005/09/12 02:00:29 $</date>
       </revision>
     </revhistory>
   </chapterinfo>
@@ -41,125 +41,7 @@
     <qandaentry>
       <question><para>How are the exported functions used by the OSP module?</para></question>
       <answer>
-        <para>If the SER receives an INVITE for a UA registered with it, it expects the INVITE to carry an OSP token for authorization. If, on the other hand, it gets an INVITE for a device that is not registered with it,  it queries the OSP Server to get the route to the destination. This functionality is implemented in the sample-osp-ser.cfg file. An example is given below:</para>
-        <programlisting format="linespecific">
-if (method == "INVITE") {
-  log ("Processing invite");
-  if (lookup ("location")) {
-    log ("The user IS registered with the proxy, require OSP authorization");
-    route(1);
-    t_relay();
-  } 
-  else {
-    log("The user is NOT registered with the proxy, use OSP to get further routing");
-    route(2);
-  }
-}
-        </programlisting>
-        <para>Where the routing functions may be defined as below:</para>
-        <programlisting format="linespecific">
-#
-# OSP Validation
-#
-route[1] 
-{
-  log ("OSP authorization validation logic");
-
-  if (checkospheader()) {
-    #
-    # The function validates OSP tokens.  It will fail
-    # if the token is not valid or has expired
-    #
-    if (validateospheader()) {
-      #
-      # Authorization is valid.  
-      # The proxy can now use its own database of
-      # registered users for routing information.
-      # The proxy could also issue another 
-      # OSP authorization and routing
-      # request by calling route(1) function.
-      #
-      log ("OSP authorization is valid");
-    } 
-    else {
-      log ("OSP authorization is NOT valid, Sending back a 401");
-    }
-  } 
-  else {
-    log("OSP authorization failed, Sending back 401");
-  }
-}
-
-#
-# OSP Authorization and Routing
-#
-route[2] 
-{
-  log("OSP authorization and routing logic");
-  #
-  # Requesting OSP Routing and authorization
-  # The request may fail if:
-  # - OSP service points are not available
-  # - Authentication failed
-  # - There is no route to destination or the route is blocked
-  #
-  log ("Requesting OSP authorization and routing");
-  if (requestosprouting()) {
-    log ("A response has been received\n");
-    #
-    # Now we have 3 options.
-    #- route(3) - sends a redirect to all avaiable routes
-    #- route(4) - fork off to all available routes
-    #- route(5) - in conjunction with failure_route(1),
-    #    sequentially tries all routes
-    #
-    #route(3);
-    #route(4);
-    route(5);
-  } 
-  else {
-    log ("OSP Authorization FAILED, Sending 401");
-  }
-}
-
-route[3] 
-{
-  log ("Will prepare all routes and redirect");
-
-  if (prepareallosproutes()) {
-    log ("Sending 300 Redirect");
-  } 
-  else {
-    log (1,"Failed to prepare all routes, Sending 501");
-  }
-}
-
-route[4] 
-{
-  log ("Will prepare all routes and fork-off");
-
-  if (prepareallosproutes()) {
-    t_relay();
-  } 
-  else {
-    log("Failed to prepare all routes. Sending 500 no route");
-  }
-}
-
-route[5] 
-{
-  log("Will try the 1st route and prepare to fail-over to the next one");
-
-  if (preparefirstosproute()) {
-    t_on_reply("1");
-    t_on_failure("1");
-    t_relay();
-  } 
-  else {
-    log("Could  not use the 1st route. Sending 401 blocked");
-  }
-}
-        </programlisting>
+        <para>See sample-osp-ser.cfg in modules/osp/etc for examples</para>
       </answer>
     </qandaentry>
   </qandaset>
