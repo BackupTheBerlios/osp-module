@@ -47,13 +47,12 @@ extern char* _device_ip;
 extern char* _device_port;
 extern OSPTPROVHANDLE _provider;
 
-OSPTTRANHANDLE _transaction = -1;
 
 const int FIRST_ROUTE = 1;
 const int NEXT_ROUTE  = 0;
 
 
-static int loadosproutes(     struct sip_msg* msg, int expectedDestCount);
+static int loadosproutes(     struct sip_msg* msg, OSPTTRANHANDLE transaction, int expectedDestCount);
 static int prepareDestination(struct sip_msg* msg, int isFirst);
 
 
@@ -77,10 +76,11 @@ int requestosprouting(struct sip_msg* msg, char* ignore1, char* ignore2) {
 	char* detail_log = NULL;
 	const char** preferred = NULL;
 	int dest_count;
+	OSPTTRANHANDLE transaction = -1;
 
 
 	
-	res = OSPPTransactionNew(_provider, &_transaction);
+	res = OSPPTransactionNew(_provider, &transaction);
 	getSourceAddress(msg,osp_source_dev);
 	getFromUserpart(msg, e164_source);
 	getToUserpart(msg, e164_dest);
@@ -111,12 +111,12 @@ int requestosprouting(struct sip_msg* msg, char* ignore1, char* ignore2) {
 
 
 	if (strlen(_device_port) > 0) {
-		OSPPTransactionSetNetworkIds(_transaction,_device_port,"");
+		OSPPTransactionSetNetworkIds(transaction,_device_port,"");
 	}
 
 	/* try to request authorization */
 	res = OSPPTransactionRequestAuthorisation(
-	_transaction,       /* transaction handle */
+	transaction,       /* transaction handle */
 	_device_ip,         /* from the configuration file */
 	osp_source_dev,    /* source of call, protocol specific */
 	e164_source,       /* calling number in nodotted e164 notation */
@@ -133,7 +133,7 @@ int requestosprouting(struct sip_msg* msg, char* ignore1, char* ignore2) {
 
 	if (res == 0 && dest_count > 0) {
 		LOG(L_INFO, "osp: there is %d osp routes.\n", dest_count);
-		valid = loadosproutes(msg,dest_count);
+		valid = loadosproutes(msg,transaction,dest_count);
 	} else if (res == 0 && dest_count == 0) {
 		LOG(L_INFO, "osp: there is 0 osp routes, the route is blocked\n");
 		valid = MODULE_RETURNCODE_ERROR;
@@ -145,12 +145,15 @@ int requestosprouting(struct sip_msg* msg, char* ignore1, char* ignore2) {
 	if (call_ids[0]!=NULL) {
 		OSPPCallIdDelete(&(call_ids[0]));
 	}
+
+	OSPPTransactionDelete(transaction);
 	
 	return valid;
 }
 
 
-static int loadosproutes(struct sip_msg* msg, int expectedDestCount) {
+static int loadosproutes(struct sip_msg* msg, OSPTTRANHANDLE transaction, int expectedDestCount) {
+
 	int result = MODULE_RETURNCODE_SUCCESS;
 	int res;
 	int count;
@@ -169,7 +172,7 @@ static int loadosproutes(struct sip_msg* msg, int expectedDestCount) {
 
 		if (count==0) {
 			res = OSPPTransactionGetFirstDestination(
-				_transaction,
+				transaction,
 				sizeof(dest->validafter),
 				dest->validafter,
 				dest->validuntil,
@@ -188,7 +191,7 @@ static int loadosproutes(struct sip_msg* msg, int expectedDestCount) {
 				dest->osptoken);
 		} else {
 			res = OSPPTransactionGetNextDestination(
-				_transaction,
+				transaction,
 				0,
 				sizeof(dest->validafter),
 				dest->validafter,
@@ -214,7 +217,7 @@ static int loadosproutes(struct sip_msg* msg, int expectedDestCount) {
 			break;
 		}
 
-		OSPPTransactionGetDestNetworkId(_transaction,dest->network_id);
+		OSPPTransactionGetDestNetworkId(transaction,dest->network_id);
 
 		LOG(L_INFO,"osp: getDestination %d returned the following information:\n"
 		"  valid after: %s\n"
@@ -240,8 +243,6 @@ static int loadosproutes(struct sip_msg* msg, int expectedDestCount) {
 		}
 	}
 
-	OSPPTransactionDelete(_transaction);
-	
 	return result;
 }
 
