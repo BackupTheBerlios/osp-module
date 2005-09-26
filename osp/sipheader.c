@@ -123,8 +123,9 @@ int addOspHeader(struct sip_msg* msg, char* token, int sizeoftoken) {
 	if (OSPPBase64Encode(token, sizeoftoken, encodedToken, &sizeofencodedToken) == 0) {
 		snprintf(headerBuffer,
 			 sizeof(headerBuffer),
-			 "%s%s\r\n", 
+			 "%s%.*s\r\n", 
 			 OSP_HEADER,
+			 sizeofencodedToken,
 			 encodedToken);
 
 		headerVal.s = headerBuffer;
