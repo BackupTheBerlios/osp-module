@@ -52,9 +52,9 @@ int checkospheader(struct sip_msg* msg, char* ignore1, char* ignore2) {
 
 
 	if (getOspHeader(msg, temp, &sizeoftemp) != 0) {
-		return MODULE_RETURNCODE_ERROR;
+		return MODULE_RETURNCODE_FALSE;
 	} else {
-		return MODULE_RETURNCODE_SUCCESS;
+		return MODULE_RETURNCODE_TRUE;
 	}
 }
 
@@ -83,7 +83,7 @@ int validateospheader (struct sip_msg* msg, char* ignore1, char* ignore2) {
 
 	
 
-	valid = MODULE_RETURNCODE_ERROR;
+	valid = MODULE_RETURNCODE_FALSE;
 
 	if (0!= (res=OSPPTransactionNew(_provider, &transaction))) {
 		LOG(L_ERR, "ERROR: osp: Failed to create a new OSP transaction id %d\n",res);
@@ -136,7 +136,7 @@ int validateospheader (struct sip_msg* msg, char* ignore1, char* ignore2) {
 	
 		if (res == 0 && authorized == 1) {
 			LOG(L_INFO, "osp: Call is authorized for %d seconds",time_limit);
-			valid = MODULE_RETURNCODE_SUCCESS;
+			valid = MODULE_RETURNCODE_TRUE;
 		} else {
 			LOG(L_ERR,"ERROR: osp: Token is not valid, code %i\n", res);
 		}

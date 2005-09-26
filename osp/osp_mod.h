@@ -37,9 +37,9 @@
 
 #include "../../sr_module.h"
 
-#define MODULE_RETURNCODE_SUCCESS    1
+#define MODULE_RETURNCODE_TRUE       1
 #define MODULE_RETURNCODE_STOPROUTE  0
-#define MODULE_RETURNCODE_ERROR     -1
+#define MODULE_RETURNCODE_FALSE     -1
 
 #define MAX_DESTS                   10
 

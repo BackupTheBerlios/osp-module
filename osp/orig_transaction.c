@@ -136,10 +136,10 @@ int requestosprouting(struct sip_msg* msg, char* ignore1, char* ignore2) {
 		valid = loadosproutes(msg,transaction,dest_count);
 	} else if (res == 0 && dest_count == 0) {
 		LOG(L_INFO, "osp: there is 0 osp routes, the route is blocked\n");
-		valid = MODULE_RETURNCODE_ERROR;
+		valid = MODULE_RETURNCODE_FALSE;
 	} else {
 		LOG(L_ERR, "ERROR: osp: OSPPTransactionRequestAuthorisation returned %i\n", res);
-		valid = MODULE_RETURNCODE_ERROR;
+		valid = MODULE_RETURNCODE_FALSE;
 	}
 
 	if (call_ids[0]!=NULL) {
@@ -154,7 +154,7 @@ int requestosprouting(struct sip_msg* msg, char* ignore1, char* ignore2) {
 
 static int loadosproutes(struct sip_msg* msg, OSPTTRANHANDLE transaction, int expectedDestCount) {
 
-	int result = MODULE_RETURNCODE_SUCCESS;
+	int result = MODULE_RETURNCODE_TRUE;
 	int res;
 	int count;
 
@@ -166,7 +166,7 @@ static int loadosproutes(struct sip_msg* msg, OSPTTRANHANDLE transaction, int ex
 		dest = initDestination(&dests[count]);
 
 		if (dest == NULL) {
-			result = MODULE_RETURNCODE_ERROR;
+			result = MODULE_RETURNCODE_FALSE;
 			break;
 		}
 
@@ -213,7 +213,7 @@ static int loadosproutes(struct sip_msg* msg, OSPTTRANHANDLE transaction, int ex
 		
 		if (res != 0) {
 			LOG(L_ERR,"ERROR: osp: getDestination %d failed, expected number %d, current count %d\n",res,expectedDestCount,count);
-			result = MODULE_RETURNCODE_ERROR;
+			result = MODULE_RETURNCODE_FALSE;
 			break;
 		}
 
@@ -237,7 +237,7 @@ static int loadosproutes(struct sip_msg* msg, OSPTTRANHANDLE transaction, int ex
 	 * this way, when we start searching avps the destinations
 	 * will be in order 
 	 */
-	if (result == MODULE_RETURNCODE_SUCCESS) {
+	if (result == MODULE_RETURNCODE_TRUE) {
 		for(count = expectedDestCount -1; count >= 0; count--) {
 			saveDestination(&dests[count]);
 		}
@@ -251,7 +251,7 @@ static int loadosproutes(struct sip_msg* msg, OSPTTRANHANDLE transaction, int ex
 
 
 int preparefirstosproute(struct sip_msg* msg, char* ignore1, char* ignore2) {
-	int result = MODULE_RETURNCODE_SUCCESS;
+	int result = MODULE_RETURNCODE_TRUE;
 
 	LOG(L_INFO, "osp: Preparing 1st route\n");
 
@@ -264,7 +264,7 @@ int preparefirstosproute(struct sip_msg* msg, char* ignore1, char* ignore2) {
 
 
 int preparenextosproute(struct sip_msg* msg, char* ignore1, char* ignore2) {
-	int result = MODULE_RETURNCODE_SUCCESS;
+	int result = MODULE_RETURNCODE_TRUE;
 
 	LOG(L_INFO, "osp: Preparing next route\n");
 
@@ -278,21 +278,21 @@ int preparenextosproute(struct sip_msg* msg, char* ignore1, char* ignore2) {
 
 
 int prepareallosproutes(struct sip_msg* msg, char* ignore1, char* ignore2) {
-	int result = MODULE_RETURNCODE_SUCCESS;
+	int result = MODULE_RETURNCODE_TRUE;
 
 	for( result = preparefirstosproute(msg,ignore1,ignore2);
-	     result == MODULE_RETURNCODE_SUCCESS;
+	     result == MODULE_RETURNCODE_TRUE;
 	     result = preparenextosproute(msg,ignore1,ignore2)) {
 	}
 
-	return MODULE_RETURNCODE_SUCCESS;
+	return MODULE_RETURNCODE_TRUE;
 }
 
 
 
 
 int prepareDestination(struct sip_msg* msg, int isFirst) {
-	int result = MODULE_RETURNCODE_SUCCESS;
+	int result = MODULE_RETURNCODE_TRUE;
 	str newuri = {NULL,0};
 
 	osp_dest* dest = getDestination();
@@ -312,7 +312,7 @@ int prepareDestination(struct sip_msg* msg, int isFirst) {
 
 	} else {
 		LOG(L_INFO, "osp: There is no more routes\n");
-		result = MODULE_RETURNCODE_ERROR;
+		result = MODULE_RETURNCODE_FALSE;
 	}
 
 	if (newuri.len > 0) {
