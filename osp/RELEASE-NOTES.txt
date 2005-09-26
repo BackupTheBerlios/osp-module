@@ -30,3 +30,10 @@ Version: 0.1.1
    o Bug 4892 - removed trailing binary chars from some log messages.
    o Bug 4987 - fixed a compile time error on Solaris
    o Bug 4946 - added README file
+
+Version: 0.1.2
+   o Bug 5094 - don't route the call if OSP token validation fails.
+   o Bug 5109 - send "100 Trying" message before requesting OSP routes.
+   o Bug 5111 - fixed typos in error messages.
+   o Bug 5153 - removed trailing binary chars from P-OSP-Auth-Token header
+                value.
