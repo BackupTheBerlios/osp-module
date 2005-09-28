@@ -241,10 +241,10 @@ void recordEvent(int client_code, int server_code) {
 		recordCode(client_code,dest);
 
 		if (client_code == 487) {
-			LOG(L_INFO,"487 - Time to report orig call set up usage\n");
+			DBG("487 - Time to report orig call set up usage\n");
 			reportOrigCallSetUpUsage();
 		} else if (client_code == 200) {
-			LOG(L_INFO,"200 - Time to report orig call set up usage\n");
+			DBG("200 - Time to report orig call set up usage\n");
 			reportOrigCallSetUpUsage();
 		}
 	} 
@@ -253,10 +253,10 @@ void recordEvent(int client_code, int server_code) {
 		recordCode(server_code,dest);
 
 		if (server_code == 487) {
-			LOG(L_INFO,"487 - Time to report term call set up usage\n");
+			DBG("487 - Time to report term call set up usage\n");
 			reportTermCallSetUpUsage();
 		} else if (server_code == 200) {
-			LOG(L_INFO,"200 - Time to report term call set up usage\n");
+			DBG("200 - Time to report term call set up usage\n");
 			reportTermCallSetUpUsage();
 		}
 	}
