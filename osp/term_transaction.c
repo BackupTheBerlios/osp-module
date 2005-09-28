@@ -35,6 +35,8 @@
 #include "osp_mod.h"
 #include "term_transaction.h"
 #include "sipheader.h"
+#include "destination.h"
+#include "usage.h"
 #include "osp/osp.h"
 #include "osp/ospb64.h"
 #include "../../sr_module.h"
@@ -44,6 +46,7 @@
 extern OSPTPROVHANDLE _provider;
 extern int _token_format;
 extern int _validate_call_id;
+extern char* _device_ip;
 
 
 int checkospheader(struct sip_msg* msg, char* ignore1, char* ignore2) {
@@ -67,13 +70,12 @@ int validateospheader (struct sip_msg* msg, char* ignore1, char* ignore2) {
 	int valid;
 
 	OSPTTRANHANDLE transaction = -1;
-	char e164_source[1000];
-	char e164_dest [1000];
 	unsigned int authorized = 0;
 	unsigned int time_limit = 0;
 	unsigned int log_size = 0;
 	void *detail_log = NULL;
 	OSPTCALLID* call_id = NULL;
+	osp_dest  dest;
 
 	char token[3000];
 	unsigned int sizeoftoken = sizeof(token);
@@ -85,11 +87,15 @@ int validateospheader (struct sip_msg* msg, char* ignore1, char* ignore2) {
 
 	valid = MODULE_RETURNCODE_FALSE;
 
+	initDestination(&dest);
+
+	getSourceAddress(msg,dest.source);
+
 	if (0!= (res=OSPPTransactionNew(_provider, &transaction))) {
 		LOG(L_ERR, "ERROR: osp: Failed to create a new OSP transaction id %d\n",res);
-	} else if (0 != getFromUserpart(msg, e164_source)) {
+	} else if (0 != getFromUserpart(msg, dest.callingnumber)) {
 		LOG(L_ERR, "ERROR: osp: Failed to extract calling number\n");
-	} else if (0 != getToUserpart(msg, e164_dest)) {
+	} else if (0 != getToUserpart(msg, dest.callednumber)) {
 		LOG(L_ERR, "ERROR: osp: Failed to extract called number\n");
 	} else if (0 != getCallId(msg, &call_id)) {
 		LOG(L_ERR, "ERROR: osp: Failed to extract call id\n");
@@ -103,8 +109,8 @@ int validateospheader (struct sip_msg* msg, char* ignore1, char* ignore2) {
 			"validate_call_id = >%s< \n"
 			"callid = >%.*s< \n",
 			transaction,
-			e164_source,
-			e164_dest,
+			dest.callingnumber,
+			dest.callednumber,
 			_validate_call_id==0?"No":"Yes",
 			call_id->ospmCallIdLen,
 			call_id->ospmCallIdVal);
@@ -120,9 +126,9 @@ int validateospheader (struct sip_msg* msg, char* ignore1, char* ignore2) {
 			"",
 			"",
 			"",
-			e164_source,
+			dest.callingnumber,
 			OSPC_E164,
-			e164_dest,
+			dest.callednumber,
 			OSPC_E164,
 			callIdLen,
 			callIdVal,
@@ -134,12 +140,23 @@ int validateospheader (struct sip_msg* msg, char* ignore1, char* ignore2) {
 			detail_log,
 			_token_format);
 	
+		memcpy(dest.callid,call_id->ospmCallIdVal,call_id->ospmCallIdLen);
+		dest.sizeofcallid = call_id->ospmCallIdLen;
+		dest.tid = get_transaction_id(transaction);
+		dest.type = OSPC_DESTINATION;
+		dest.time_auth = time(NULL);
+		strcpy(dest.destination,_device_ip);
+
 		if (res == 0 && authorized == 1) {
 			LOG(L_INFO, "osp: Call is authorized for %d seconds",time_limit);
+			record_term_transaction(msg,transaction,dest.source,dest.callingnumber,dest.callednumber,dest.time_auth);
 			valid = MODULE_RETURNCODE_TRUE;
+			dest.token_validated = 1;
 		} else {
 			LOG(L_ERR,"ERROR: osp: Token is not valid, code %i\n", res);
+			dest.token_validated = res;
 		}
+		saveTermDestination(&dest);
 	}
 
 	if (transaction != -1) {
