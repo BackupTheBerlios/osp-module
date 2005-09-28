@@ -45,6 +45,8 @@ struct _osp_dest {
 	char callid[100];
 	char callednumber[100];
 	char callingnumber[100];
+	char source[100];
+	char sourcedevice[100];
 	char destination[100];
 	char destinationdevice[100];
 	char network_id[100];
@@ -52,16 +54,32 @@ struct _osp_dest {
 	unsigned int sizeofcallid;
 	unsigned int timelimit;
 	unsigned int sizeoftoken;
-	int  failure_reason;
 	int  used;
+	int  last_code;
+	time_t time_auth;
+	time_t time_100;
+	time_t time_180;
+	time_t time_200;
+	int token_validated;
+	unsigned long long tid;
+	int type;
+	int reported;
 };
 
 typedef struct _osp_dest osp_dest;
 
 osp_dest* createDestination();
 osp_dest* initDestination(osp_dest* dest);
-void      deleteDestination(osp_dest* dest);
-osp_dest* getDestination();
-int       saveDestination(osp_dest* dest);
 
+osp_dest* getNextOrigDestination();
+osp_dest* getTermDestination();
+
+
+int       saveOrigDestination(osp_dest* dest);
+int       saveTermDestination(osp_dest* dest);
+
+void	  recordEvent(int client_code, int server_code);
+
+void      dumpDebugInfo();
+void      dumbDestDebugInfo(osp_dest *dest);
 #endif
