@@ -42,7 +42,7 @@
 
 /* A list of destination URIs */
 str ORIG_OSPDESTS_LABEL = {"orig_osp_dests",14};
-str TERM_OSPDESTS_LABEL = {"term_osp_dests",13};
+str TERM_OSPDESTS_LABEL = {"term_osp_dests",14};
 
 
 static int saveDestination(osp_dest* dest, str* label);
