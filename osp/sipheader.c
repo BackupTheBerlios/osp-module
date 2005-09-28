@@ -198,8 +198,7 @@ int getCallId(struct sip_msg* msg, OSPTCALLID** callid) {
 }
 
 
-/* get first VIA header and uses the IP and port found there
- * output format is [0.0.0.0]:5060 
+/* get first VIA header and uses the IP or host name
  */
 int getSourceAddress(struct sip_msg* msg, char* source_address) {
 	struct hdr_field* hf;
@@ -213,19 +212,8 @@ int getSourceAddress(struct sip_msg* msg, char* source_address) {
 		if (hf->type == HDR_VIA) {
 			// found first VIA
 			via_body = (struct via_body*)hf->parsed;	
-			/* check if hostname or IP address */
-			if ( (*(via_body->host.s) < '0') || (*(via_body->host.s) > '9') ) {
-				/* hostname does not start with number */
-				strncpy(source_address, via_body->host.s, via_body->host.len);
-			} else {
-				/* IP addresses have to be enclosed by [ ] */
-				*source_address = '[';
-				strncpy(source_address+1, via_body->host.s, via_body->host.len);
-				*(source_address+via_body->host.len+1) = ']';
-				*(source_address+via_body->host.len+2) = '\0';
-			}	
-			strncat(source_address, ":", 1);
-			strncat(source_address, via_body->port_str.s, via_body->port_str.len);
+			strncpy(source_address, via_body->host.s, via_body->host.len);
+			source_address[via_body->host.len] = '\0';
 
 			DBG("osp: getSourceAddress: result is %s\n", source_address);
 
