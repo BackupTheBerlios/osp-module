@@ -42,8 +42,11 @@
 #include "../../mem/mem.h"
 #include "../../timer.h"
 #include "../../locking.h"
+#include "../../forward.h"
 #include "../../parser/parse_uri.h"
 #include "../../parser/parse_from.h"
+#include "../../parser/parse_rr.h"
+
 
 
 
@@ -164,7 +167,7 @@ int getOspHeader(struct sip_msg* msg, char* token, int* sizeoftoken) {
 					retVal = 0;
 				} else {
 					LOG(L_ERR, "ERROR: osp: getOspHeader: failed to base64 decode OSP token, reason - %d\n",code);
-					LOG(L_ERR, "ERROR: osp: header %.*s\n",hf->body.len,hf->body.s);
+					LOG(L_ERR, "ERROR: osp: header '%.*s' length %d\n",hf->body.len,hf->body.s,hf->body.len);
 				}
 				break;
 			}		
@@ -235,6 +238,47 @@ int getSourceAddress(struct sip_msg* msg, char* source_address) {
 }
 
 
+/* Get route parameters from the 1st Route or Request Line
+*/
+int getRouteParams(struct sip_msg* msg, char* route_params) {
+	int retVal = 1;
+
+        struct hdr_field* hdr;
+        struct sip_uri puri;
+        rr_t* rt;
+
+	 DBG("osp: getRouteParams: parsed uri: host '%.*s' port '%d' vars '%.*s'\n",
+             msg->parsed_uri.host.len,msg->parsed_uri.host.s,
+             msg->parsed_uri.port_no,
+             msg->parsed_uri.params.len,msg->parsed_uri.params.s);
+
+        if (!(hdr=msg->route)) {
+                DBG("osp: getRouteParams: there is no route headers\n");
+        } else if (!(rt=(rr_t*)hdr->parsed)) {
+                LOG(L_ERR, "ERROR: osp: getRouteParams: the route headers are not parsed\n");
+        } else if (parse_uri(rt->nameaddr.uri.s,rt->nameaddr.uri.len,&puri) != 0) {
+                LOG(L_ERR, "ERROR: osp: getRouteParams: failed to parse the route URI '%.*s'\n",rt->nameaddr.uri.len,rt->nameaddr.uri.s);
+        } else if (check_self(&puri.host, puri.port_no ? puri.port_no : SIP_PORT, PROTO_NONE) != 1) {
+                DBG("osp: getRouteParams: the route uri is NOT mine\n");
+                DBG("osp: getRouteParams: host '%.*s' port '%d'\n",puri.host.len,puri.host.s,puri.port_no);
+                DBG("osp: getRouteParams: params '%.*s'\n",puri.params.len,puri.params.s);
+        } else {
+                DBG("osp: getRouteParams: the Route IS mine - '%.*s'\n",puri.params.len,puri.params.s);
+                DBG("osp: getRouteParams: host '%.*s' port '%d'\n",puri.host.len,puri.host.s,puri.port_no);
+                strncpy(route_params,puri.params.s,puri.params.len);
+                route_params[puri.params.len] = 0;
+                retVal = 0;
+        }
+
+        if (retVal == 1 && msg->parsed_uri.params.len > 0) {
+                DBG("osp: getRouteParams: using route params fromt he request uri\n");
+                strncpy(route_params,msg->parsed_uri.params.s,msg->parsed_uri.params.len);
+                route_params[msg->parsed_uri.params.len] = 0;
+                retVal = 0;
+        }
+
+	return retVal;
+}
 
 
 
