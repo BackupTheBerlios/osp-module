@@ -37,12 +37,16 @@
 #include "sipheader.h"
 #include "orig_transaction.h"
 #include "term_transaction.h"
+#include "usage.h"
+#include "tm.h"
 #include "../../sr_module.h"
 #include "../../data_lump_rpl.h"
 #include "../../mem/mem.h"
 #include "../../timer.h"
 #include "../../locking.h"
+
 #include <stdio.h>
+
 
 MODULE_VERSION
 
@@ -83,6 +87,7 @@ static cmd_export_t cmds[]={
 	{"preparefirstosproute", preparefirstosproute, 0, 0, REQUEST_ROUTE|FAILURE_ROUTE}, 
 	{"preparenextosproute",  preparenextosproute,  0, 0, REQUEST_ROUTE|FAILURE_ROUTE}, 
 	{"prepareallosproutes",  prepareallosproutes,  0, 0, REQUEST_ROUTE|FAILURE_ROUTE}, 
+	{"reportospusage",       reportospusage,       0, 0, REQUEST_ROUTE}, 
 	{0, 0, 0, 0, 0}
 };
 
@@ -137,6 +142,14 @@ static int mod_init(void)
                 LOG(L_ERR, "ERROR: osp: mod_init: could not find append_hf, make shure textops is loaded\n");
                 return 1;
         }   
+
+	add_rr_param = find_export("add_rr_param", 1, 0);
+        if (add_rr_param == NULL) {
+                LOG(L_WARN, "WARNING: osp: mod_init: could not find add_rr_param, make shure rr is loaded\n");
+                LOG(L_WARN, "WARNING: osp: mod_init: add_rr_param is required for reporting duration for OSP transactions\n");
+        }   
+
+	mod_init_tm();
 
 	/* everything is fine, initialization done */
 	return 0;	
