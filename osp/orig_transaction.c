@@ -36,6 +36,7 @@
 #include "orig_transaction.h"
 #include "sipheader.h"
 #include "destination.h"
+#include "usage.h"
 #include "osp/osp.h"
 #include "../../sr_module.h"
 #include "../../locking.h"
@@ -52,7 +53,7 @@ const int FIRST_ROUTE = 1;
 const int NEXT_ROUTE  = 0;
 
 
-static int loadosproutes(     struct sip_msg* msg, OSPTTRANHANDLE transaction, int expectedDestCount);
+static int loadosproutes(     struct sip_msg* msg, OSPTTRANHANDLE transaction, int expectedDestCount, char* source, char* source_dev, time_t time_ath);
 static int prepareDestination(struct sip_msg* msg, int isFirst);
 
 
@@ -77,6 +78,12 @@ int requestosprouting(struct sip_msg* msg, char* ignore1, char* ignore2) {
 	const char** preferred = NULL;
 	int dest_count;
 	OSPTTRANHANDLE transaction = -1;
+	time_t time_auth;
+
+	time_auth = time(NULL);
+
+
+
 
 
 	
@@ -133,7 +140,8 @@ int requestosprouting(struct sip_msg* msg, char* ignore1, char* ignore2) {
 
 	if (res == 0 && dest_count > 0) {
 		LOG(L_INFO, "osp: there is %d osp routes.\n", dest_count);
-		valid = loadosproutes(msg,transaction,dest_count);
+		record_orig_transaction(msg,transaction,osp_source_dev,e164_source,e164_dest,time_auth);
+		valid = loadosproutes(msg,transaction,dest_count,_device_ip,osp_source_dev,time_auth);
 	} else if (res == 0 && dest_count == 0) {
 		LOG(L_INFO, "osp: there is 0 osp routes, the route is blocked\n");
 		valid = MODULE_RETURNCODE_FALSE;
@@ -152,7 +160,7 @@ int requestosprouting(struct sip_msg* msg, char* ignore1, char* ignore2) {
 }
 
 
-static int loadosproutes(struct sip_msg* msg, OSPTTRANHANDLE transaction, int expectedDestCount) {
+static int loadosproutes(struct sip_msg* msg, OSPTTRANHANDLE transaction, int expectedDestCount, char* source, char* source_dev, time_t time_auth) {
 
 	int result = MODULE_RETURNCODE_TRUE;
 	int res;
@@ -210,6 +218,7 @@ static int loadosproutes(struct sip_msg* msg, OSPTTRANHANDLE transaction, int ex
 				&dest->sizeoftoken,
 				dest->osptoken);
 		}
+
 		
 		if (res != 0) {
 			LOG(L_ERR,"ERROR: osp: getDestination %d failed, expected number %d, current count %d\n",res,expectedDestCount,count);
@@ -218,6 +227,11 @@ static int loadosproutes(struct sip_msg* msg, OSPTTRANHANDLE transaction, int ex
 		}
 
 		OSPPTransactionGetDestNetworkId(transaction,dest->network_id);
+		strcpy(dest->source,source);
+		strcpy(dest->sourcedevice,source_dev);
+		dest->type = OSPC_SOURCE;
+		dest->tid = get_transaction_id(transaction);
+		dest->time_auth = time_auth;
 
 		LOG(L_INFO,"osp: getDestination %d returned the following information:\n"
 		"  valid after: %s\n"
@@ -239,7 +253,7 @@ static int loadosproutes(struct sip_msg* msg, OSPTTRANHANDLE transaction, int ex
 	 */
 	if (result == MODULE_RETURNCODE_TRUE) {
 		for(count = expectedDestCount -1; count >= 0; count--) {
-			saveDestination(&dests[count]);
+			saveOrigDestination(&dests[count]);
 		}
 	}
 
@@ -295,7 +309,7 @@ int prepareDestination(struct sip_msg* msg, int isFirst) {
 	int result = MODULE_RETURNCODE_TRUE;
 	str newuri = {NULL,0};
 
-	osp_dest* dest = getDestination();
+	osp_dest* dest = getNextOrigDestination();
 
 	if (dest != NULL) {
 
@@ -312,6 +326,8 @@ int prepareDestination(struct sip_msg* msg, int isFirst) {
 
 	} else {
 		LOG(L_INFO, "osp: There is no more routes\n");
+		reportOrigCallSetUpUsage();
+		reportTermCallSetUpUsage();
 		result = MODULE_RETURNCODE_FALSE;
 	}
 
