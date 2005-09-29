@@ -178,8 +178,10 @@ int reportUsageFromCooky(char* cooky, OSPTCALLID* call_id, int isOrig, struct si
 	char first_via[200];
 	char from[200];
 	char to[200];
+	char next_hop[200];
 	char *calling;
 	char *called;
+	char *terminator;
 
 	OSPTTRANHANDLE transaction_handle = -1;
 
@@ -212,17 +214,20 @@ int reportUsageFromCooky(char* cooky, OSPTCALLID* call_id, int isOrig, struct si
 	getSourceAddress(msg,first_via);
 	getFromUserpart( msg, from);
 	getToUserpart(   msg, to);
+	getNextHop(      msg, next_hop);
 
 	if (strcmp(first_via,user_agent_client)==0) {
 		LOG(L_INFO,"osp: Originator '%s' released the call\n",first_via);
 		release_source = RELEASE_SOURCE_ORIG;
 		calling = from;
 		called = to;
+		terminator = next_hop;
 	} else {
 		LOG(L_INFO,"osp: Terminator '%s' released the call\n",first_via);
 		release_source = RELEASE_SOURCE_TERM;
 		calling = to;
 		called = from;
+		terminator = first_via;
 	}
 
 
@@ -235,7 +240,7 @@ int reportUsageFromCooky(char* cooky, OSPTCALLID* call_id, int isOrig, struct si
 		transaction_id,
 		isOrig==1?OSPC_SOURCE:OSPC_DESTINATION,
 		isOrig==1?_device_ip:user_agent_client,
-		isOrig==1?"":_device_ip,
+		isOrig==1?terminator:_device_ip,
 		isOrig==1?user_agent_client:"",
 		"",
 		calling,

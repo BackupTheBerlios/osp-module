@@ -49,6 +49,7 @@ int  getSourceAddress(   struct sip_msg* msg, char* source_address);
 int  getCallId(          struct sip_msg* msg, OSPTCALLID** callid);
 int  getRouteParams(     struct sip_msg* msg, char* route_params);
 int  rebuildDestionationUri(str *newuri, char *destination, char *port, char *callednumber);
+void getNextHop(struct sip_msg* msg, char* next_hope);
 
 void skipPlus(char* e164);
 
