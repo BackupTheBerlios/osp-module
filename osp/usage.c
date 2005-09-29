@@ -69,13 +69,11 @@ void record_transaction_info(struct sip_msg* msg, OSPTTRANHANDLE transaction, ch
 	str  toAdd;
 
 	sprintf(buf,
-		";%s=t%llu_s%s_T%d_c%s_C%s",
+		";%s=t%llu_s%s_T%d",
 		(isOrig==1?OSP_ORIG_COOKY:OSP_TERM_COOKY),
 		get_transaction_id(transaction),
 		uac,
-		(unsigned int)time_auth,
-		from,
-		to);
+		(unsigned int)time_auth);
 
 	toAdd.s = buf;
 	toAdd.len = strlen(buf);
@@ -173,13 +171,15 @@ int reportUsageFromCooky(char* cooky, OSPTCALLID* call_id, int isOrig, struct si
 
 	unsigned long long transaction_id = 0;
 	char *user_agent_client = "";
-	char *from = "";
-	char *to = "";
 	time_t auth_time = -1;
 	time_t end_time = time(NULL);
 
 	int release_source;
 	char first_via[200];
+	char from[200];
+	char to[200];
+	char *calling;
+	char *called;
 
 	OSPTTRANHANDLE transaction_handle = -1;
 
@@ -203,12 +203,6 @@ int reportUsageFromCooky(char* cooky, OSPTCALLID* call_id, int isOrig, struct si
 			case 's':
 				user_agent_client = value;
 				break;
-			case 'c':
-				from = value;
-				break;
-			case 'C':
-				to = value;
-				break;
 			default:
 				LOG(L_ERR,"osp:reportUsageFromCooky: unexpected tag '%c' / value '%s'\n",name,value);
 				break;
@@ -216,13 +210,19 @@ int reportUsageFromCooky(char* cooky, OSPTCALLID* call_id, int isOrig, struct si
 	}
 
 	getSourceAddress(msg,first_via);
+	getFromUserpart( msg, from);
+	getToUserpart(   msg, to);
 
 	if (strcmp(first_via,user_agent_client)==0) {
 		LOG(L_INFO,"osp: Originator '%s' released the call\n",first_via);
 		release_source = RELEASE_SOURCE_ORIG;
+		calling = from;
+		called = to;
 	} else {
 		LOG(L_INFO,"osp: Terminator '%s' released the call\n",first_via);
 		release_source = RELEASE_SOURCE_TERM;
+		calling = to;
+		called = from;
 	}
 
 
@@ -238,9 +238,9 @@ int reportUsageFromCooky(char* cooky, OSPTCALLID* call_id, int isOrig, struct si
 		isOrig==1?"":_device_ip,
 		isOrig==1?user_agent_client:"",
 		"",
-		from,
+		calling,
 		OSPC_E164,
-		to,
+		called,
 		OSPC_E164,
 		call_id->ospmCallIdLen,
 		call_id->ospmCallIdVal,
