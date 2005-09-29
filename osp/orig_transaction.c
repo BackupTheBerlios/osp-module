@@ -315,7 +315,7 @@ int prepareDestination(struct sip_msg* msg, int isFirst) {
 
 		rebuildDestionationUri(&newuri, dest->destination, dest->network_id, dest->callednumber);
 
-		LOG(L_INFO, "osp: Preparing route to uri '%.*s'\n",newuri.len,newuri.s);
+		LOG(L_INFO, "osp: Preparing route to uri '%.*s' for call-id '%.*s'\n",newuri.len,newuri.s,dest->sizeofcallid,dest->callid);
 
 		if (isFirst == FIRST_ROUTE) {
 			rewrite_uri(msg, &newuri);
