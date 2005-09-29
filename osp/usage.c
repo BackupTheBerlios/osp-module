@@ -55,6 +55,9 @@ int reportUsageFromCooky(char* cooky, OSPTCALLID* call_id, int isOrig, struct si
 #define OSP_ORIG_COOKY "osp-o"
 #define OSP_TERM_COOKY "osp-t"
 
+#define RELEASE_SOURCE_ORIG 0
+#define RELEASE_SOURCE_TERM 1
+
 /*
  *
  *
@@ -175,6 +178,9 @@ int reportUsageFromCooky(char* cooky, OSPTCALLID* call_id, int isOrig, struct si
 	time_t auth_time = -1;
 	time_t end_time = time(NULL);
 
+	int release_source;
+	char first_via[200];
+
 	OSPTTRANHANDLE transaction_handle = -1;
 
 	DBG("osp:reportUsageFromCooky: '%s' isOrig '%d'\n",cooky,isOrig);
@@ -208,6 +214,17 @@ int reportUsageFromCooky(char* cooky, OSPTCALLID* call_id, int isOrig, struct si
 				break;
 		}
 	}
+
+	getSourceAddress(msg,first_via);
+
+	if (strcmp(first_via,user_agent_client)==0) {
+		LOG(L_INFO,"osp: Originator '%s' released the call\n",first_via);
+		release_source = RELEASE_SOURCE_ORIG;
+	} else {
+		LOG(L_INFO,"osp: Terminator '%s' released the call\n",first_via);
+		release_source = RELEASE_SOURCE_TERM;
+	}
+
 
 	errorCode = OSPPTransactionNew(_provider, &transaction_handle);
 
@@ -244,7 +261,7 @@ int reportUsageFromCooky(char* cooky, OSPTCALLID* call_id, int isOrig, struct si
 		end_time,
 		0,0,
 		0,0,
-		0,
+		release_source,
 		NULL,
 		0,0,0,0,
 		NULL,NULL);
