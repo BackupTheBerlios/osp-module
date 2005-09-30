@@ -39,6 +39,7 @@ include ../../Makefile.defs
 auto_gen=
 NAME=osp.so
 LIBS=-losp -lssl -lcrypto -lpthread -lm
+DEFS+=-D_POSIX_THREADS
 
 include ../../Makefile.modules
 
