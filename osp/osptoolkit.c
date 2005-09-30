@@ -147,6 +147,8 @@ static OSPTTHREADRETURN report_usage_wk(void* usage_arg)
 
 	OSPPTransactionDelete(usage->ospvTransaction);
 
+	free(usage);
+
 	OSPTTHREADRETURN_NULL();
 }
 
