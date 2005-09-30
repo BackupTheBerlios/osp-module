@@ -123,7 +123,7 @@ static OSPTTHREADRETURN report_usage_wk(void* usage_arg)
 		usage->ospvTransaction,
 		(enum OSPEFAILREASON)usage->ospvReleaseCode);
 
-	for (i = 1; i <= 5; i++) {
+	for (i = 1; i <= MAX_RETRIES; i++) {
 		errorcode = OSPPTransactionReportUsage(
 			usage->ospvTransaction,
 			usage->ospvDuration,
