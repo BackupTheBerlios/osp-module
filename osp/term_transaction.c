@@ -148,6 +148,8 @@ int validateospheader (struct sip_msg* msg, char* ignore1, char* ignore2) {
 		dest.time_auth = time(NULL);
 		strcpy(dest.destination,_device_ip);
 
+		saveTermDestination(&dest);
+
 		if (res == 0 && authorized == 1) {
 			LOG(L_INFO, "osp: Call is authorized for %d seconds, call-id '%.*s', transaction-id '%lld'",
 				time_limit,dest.sizeofcallid,dest.callid,dest.tid);
@@ -155,8 +157,15 @@ int validateospheader (struct sip_msg* msg, char* ignore1, char* ignore2) {
 			valid = MODULE_RETURNCODE_TRUE;
 		} else {
 			LOG(L_ERR,"ERROR: osp: Token is not valid, code %i\n", res);
+
+			/* Update terminating status code to 401 and report terminating set-up usage.
+			 * We may need to make 401 configurable, just in case a user decides to reply with
+			 * a different code.  Other options - trigger call-set up usage reporting from the cpl
+			 * (after replying with an error code), or maybe use a different tm callback.
+			 */
+			recordEvent(0,401);
+			reportTermCallSetUpUsage();
 		}
-		saveTermDestination(&dest);
 	}
 
 	if (transaction != -1) {
