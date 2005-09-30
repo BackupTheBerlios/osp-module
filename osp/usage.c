@@ -255,27 +255,15 @@ int reportUsageFromCooky(char* cooky, OSPTCALLID* call_id, int isOrig, struct si
 
 	DBG("osp:reportUsageFromCooky: started building usage handle %d / code %d\n",transaction_handle,errorCode);
 
-	OSPPTransactionRecordFailure(
+	report_usage(
 		transaction_handle,
-		(enum OSPEFAILREASON)1016);
-
-	errorCode = OSPPTransactionReportUsage(
-		transaction_handle,
+		1016,
 		end_time - auth_time,
 		auth_time,
 		end_time,
 		0,0,
 		0,0,
-		release_source,
-		NULL,
-		0,0,0,0,
-		NULL,NULL);
-
-	DBG("osp:reportUsageFromCooky: reported usage handle %d / code %d\n",transaction_handle,errorCode);
-
-	errorCode = OSPPTransactionDelete(transaction_handle);
-
-	DBG("osp:reportUsageFromCooky: delete transaction handle %d / code %d\n",transaction_handle,errorCode);
+		release_source);
 
 	return errorCode;
 }
@@ -402,36 +390,20 @@ int buildUsageFromDestination(OSPTTRANHANDLE transaction, osp_dest* dest, int la
 
 int reportUsageFromDestination(OSPTTRANHANDLE transaction, osp_dest* dest)
 {
-
-	int errorCode;
-
-	OSPPTransactionRecordFailure(
-		transaction,
-		(enum OSPEFAILREASON)dest->last_code);
-
-	errorCode = OSPPTransactionReportUsage(
-		transaction,              /* In - Transaction handle */
-		0,                        /* In - Length of call */
-		dest->time_auth,          /* In - Call start time */
-		0,                        /* In - Call end time */
-		dest->time_180,           /* In - Call alert time */
-		dest->time_200,           /* In - Call connect time */
-		dest->time_180 ? 1:0,     /* In - Is PDD Info present */
-                                          /* In - Post Dial Delay */
+	report_usage(
+		transaction,		/* In - Transaction handle */
+		dest->last_code,	/* In - Release Code */	
+		0,			/* In - Length of call */
+		dest->time_auth,	/* In - Call start time */
+		0,			/* In - Call end time */
+		dest->time_180,		/* In - Call alert time */
+		dest->time_200,		/* In - Call connect time */
+		dest->time_180 ? 1:0,	/* In - Is PDD Info present */
+ 					/* In - Post Dial Delay */
 		dest->time_180 ? dest->time_180 - dest->time_auth : 0,
-		0,                        /* In - EP that released the call */
-		"",                       /* In - conference Id. Max 100 char long */
-		0,                        /* In - Packets not received by peer */
-		0,                        /* In - Fraction of packets not received by peer */
-		0,                        /* In - Packets not received that were expected */
-		0,                        /* In - Fraction of packets expected but not received */
-		NULL,NULL);
+		0);
 
-	DBG("osp:reportCallSetUpUsage reported usage, code %d\n", errorCode);
-
-	OSPPTransactionDelete(transaction);
-
-	return errorCode;
+	return 0;
 }
 
 

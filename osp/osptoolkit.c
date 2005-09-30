@@ -36,9 +36,127 @@
 
 
 #include "osptoolkit.h"
-#include "osp/osp.h"
 #include "osp/osptrans.h"
+#include "osp/osposincl.h"
+#include "osp/ospossys.h"
+#include "osp/osp.h"
 #include "../../sr_module.h"
+
+static OSPTTHREADRETURN report_usage_wk(void* usage_arg);
+
+
+
+typedef struct _usage_info
+{
+	OSPTTRANHANDLE	ospvTransaction;	/* In - Transaction handle */
+	unsigned	ospvDuration;		/* In - Length of call */
+	time_t		ospvStartTime;		/* In - Call start time */
+	time_t		ospvEndTime;		/* In - Call end time */
+	time_t		ospvAlertTime;		/* In - Call alert time */
+	time_t		ospvConnectTime;	/* In - Call connect time */
+	unsigned	ospvIsPDDInfoPresent;	/* In - Is PDD Info present */
+	unsigned	ospvPostDialDelay;	/* In - Post Dial Delay */
+	unsigned	ospvReleaseSource;	/* In - EP that released the call */
+	unsigned	ospvReleaseCode;	/* In - Release code */
+} usage_info;
+
+
+
+
+
+
+void report_usage(
+    OSPTTRANHANDLE	ospvTransaction,
+    unsigned		ospvReleaseCode,
+    unsigned		ospvDuration,
+    time_t		ospvStartTime,
+    time_t		ospvEndTime,
+    time_t		ospvAlertTime,
+    time_t		ospvConnectTime,
+    unsigned		ospvIsPDDInfoPresent,
+    unsigned		ospvPostDialDelay,
+    unsigned		ospvReleaseSource)
+{
+	int errorcode;
+	usage_info* usage;
+	OSPTTHREADID thread_id;
+	OSPTTHRATTR thread_attr;
+
+	LOG(L_INFO, "osp: Scheduling usage reporting for transaction-id '%lld'\n",get_transaction_id(ospvTransaction));
+
+	usage = (usage_info *)malloc(sizeof(usage_info));
+
+	usage->ospvTransaction		= ospvTransaction;
+	usage->ospvReleaseCode		= ospvReleaseCode;
+	usage->ospvDuration		= ospvDuration;
+	usage->ospvStartTime		= ospvStartTime;
+	usage->ospvEndTime		= ospvEndTime;
+	usage->ospvAlertTime		= ospvAlertTime;
+	usage->ospvConnectTime		= ospvConnectTime;
+	usage->ospvIsPDDInfoPresent	= ospvIsPDDInfoPresent;
+	usage->ospvPostDialDelay	= ospvPostDialDelay;
+	usage->ospvReleaseSource	= ospvReleaseSource;
+
+	OSPM_THRATTR_INIT(thread_attr, errorcode);
+
+	OSPM_SETDETACHED_STATE(thread_attr,errorcode);
+
+	OSPM_CREATE_THREAD(thread_id, &thread_attr, report_usage_wk, usage, errorcode);
+
+	OSPM_THRATTR_DESTROY(thread_attr);
+}
+
+
+
+
+
+static OSPTTHREADRETURN report_usage_wk(void* usage_arg)
+{
+	int errorcode;
+	int i;
+	int MAX_RETRIES = 5;
+	usage_info* usage;
+
+	usage = (usage_info *)usage_arg;
+
+	OSPPTransactionRecordFailure(
+		usage->ospvTransaction,
+		(enum OSPEFAILREASON)usage->ospvReleaseCode);
+
+	for (i = 1; i <= 5; i++) {
+		errorcode = OSPPTransactionReportUsage(
+			usage->ospvTransaction,
+			usage->ospvDuration,
+			usage->ospvStartTime,
+			usage->ospvEndTime,
+			usage->ospvAlertTime,
+			usage->ospvConnectTime,
+			usage->ospvIsPDDInfoPresent,
+			usage->ospvPostDialDelay,
+			usage->ospvReleaseSource,
+			"", 0, 0, 0, 0, NULL,NULL);
+
+		if (errorcode == 0) {
+			LOG(L_INFO, "osp: Reported usage for transaction-id '%lld'\n",get_transaction_id(usage->ospvTransaction));
+			break;
+		} else {
+			LOG(L_ERR, "osp: Failed to report usage for transaction-id '%lld', code '%d', attempt '%d' of '%d'\n",
+				get_transaction_id(usage->ospvTransaction),errorcode,i,MAX_RETRIES);
+		}
+	}
+
+	OSPPTransactionDelete(usage->ospvTransaction);
+
+	OSPTTHREADRETURN_NULL();
+}
+
+
+
+
+
+
+
+
 
 
 

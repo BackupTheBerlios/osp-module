@@ -50,4 +50,16 @@
  */
 unsigned long long get_transaction_id(OSPTTRANHANDLE transaction);
 
+void report_usage(
+    OSPTTRANHANDLE	ospvTransaction,	/* In - Transaction handle */
+    unsigned		ospvReleaseCode,	/* In - Release code */
+    unsigned		ospvDuration,		/* In - Length of call */
+    time_t		ospvStartTime,		/* In - Call start time */
+    time_t		ospvEndTime,		/* In - Call end time */
+    time_t		ospvAlertTime,		/* In - Call alert time */
+    time_t		ospvConnectTime,	/* In - Call connect time */
+    unsigned		ospvIsPDDInfoPresent,	/* In - Is PDD Info present */
+    unsigned		ospvPostDialDelay,	/* In - Post Dial Delay */
+    unsigned		ospvReleaseSource);	/* In - EP that released the call */
+
 #endif
