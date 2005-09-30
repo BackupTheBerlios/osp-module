@@ -217,13 +217,15 @@ int reportUsageFromCooky(char* cooky, OSPTCALLID* call_id, int isOrig, struct si
 	getNextHop(      msg, next_hop);
 
 	if (strcmp(first_via,user_agent_client)==0) {
-		LOG(L_INFO,"osp: Originator '%s' released the call\n",first_via);
+		LOG(L_INFO,"osp: Originator '%s' released the call, call-id '%.*s', transaction-id '%lld'\n",
+			first_via,call_id->ospmCallIdLen,call_id->ospmCallIdVal,transaction_id);
 		release_source = RELEASE_SOURCE_ORIG;
 		calling = from;
 		called = to;
 		terminator = next_hop;
 	} else {
-		LOG(L_INFO,"osp: Terminator '%s' released the call\n",first_via);
+		LOG(L_INFO,"osp: Terminator '%s' released the cal, call-id '%.*s', transaction-id '%lld'\n",
+			first_via,call_id->ospmCallIdLen,call_id->ospmCallIdVal,transaction_id);
 		release_source = RELEASE_SOURCE_TERM;
 		calling = to;
 		called = from;
@@ -316,7 +318,8 @@ void reportOrigCallSetUpUsage()
 	}
 
 	if (last_used_dest) {
-		LOG(L_INFO,"osp: Reporting originating call set-up usage for call-id '%.*s'\n",last_used_dest->sizeofcallid,last_used_dest->callid);
+		LOG(L_INFO,"osp: Reporting originating call set-up usage for call-id '%.*s' transaction-id '%lld'\n",
+			last_used_dest->sizeofcallid,last_used_dest->callid,last_used_dest->tid);
 		errorCode = reportUsageFromDestination(transaction, last_used_dest);
 	}
 
@@ -337,7 +340,8 @@ void reportTermCallSetUpUsage()
 	if ((dest=getTermDestination())) {
 
 		if (dest->reported == 0) {
-			LOG(L_INFO,"osp: Reporting terminating call set-up usage for call-id '%.*s'\n",dest->sizeofcallid,dest->callid);
+			LOG(L_INFO,"osp: Reporting terminating call set-up usage for call-id '%.*s' transaction-id '%lld'\n",
+				dest->sizeofcallid,dest->callid,dest->tid);
 			errorCode = OSPPTransactionNew(_provider, &transaction);
 			errorCode = buildUsageFromDestination(transaction,dest,0);
 			errorCode = reportUsageFromDestination(transaction,dest);

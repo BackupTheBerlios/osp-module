@@ -104,11 +104,11 @@ int validateospheader (struct sip_msg* msg, char* ignore1, char* ignore2) {
 		LOG(L_ERR, "ERROR: osp: Failed to extract OSP authorization token\n");
 	} else {
 		LOG(L_INFO, "About to validate OSP token for:\n"
-			"transaction = >%i< \n"
+			"transaction-handle = >%i< \n"
 			"e164_source = >%s< \n"
 			"e164_dest = >%s< \n"
 			"validate_call_id = >%s< \n"
-			"callid = >%.*s< \n",
+			"call-id = >%.*s< \n",
 			transaction,
 			dest.callingnumber,
 			dest.callednumber,
@@ -149,7 +149,8 @@ int validateospheader (struct sip_msg* msg, char* ignore1, char* ignore2) {
 		strcpy(dest.destination,_device_ip);
 
 		if (res == 0 && authorized == 1) {
-			LOG(L_INFO, "osp: Call is authorized for %d seconds",time_limit);
+			LOG(L_INFO, "osp: Call is authorized for %d seconds, call-id '%.*s', transaction-id '%lld'",
+				time_limit,dest.sizeofcallid,dest.callid,dest.tid);
 			record_term_transaction(msg,transaction,dest.source,dest.callingnumber,dest.callednumber,dest.time_auth);
 			valid = MODULE_RETURNCODE_TRUE;
 			dest.token_validated = 1;

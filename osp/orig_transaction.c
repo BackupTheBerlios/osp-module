@@ -96,22 +96,19 @@ int requestosprouting(struct sip_msg* msg, char* ignore1, char* ignore2) {
 	dest_count = _max_destinations;
 
 
-	LOG(L_INFO,"osp: Requesting OSP authorization and routing for:\n"
-		"osp_source = >%s< \n"
-		"osp_source_port = >%s< \n"
-		"osp_source_dev = >%s< \n"
-		"e164_source = >%s< \n"
-		"e164_dest = >%s< \n"
-		"number_callids = >%i< \n"
-		"callids[0] = >%.*s< \n"
-		"dest_count = >%i< \n"
-		"\n", 
+	LOG(L_INFO,"osp: Requesting OSP authorization and routing for: "
+		"osp_source '%s' "
+		"osp_source_port '%s' "
+		"osp_source_dev '%s' "
+		"e164_source '%s' "
+		"e164_dest '%s' "
+		"call-id '%.*s' "
+		"dest_count '%i'",
 		_device_ip,
 		_device_port,
 		osp_source_dev,
 		e164_source,
 		e164_dest,
-		number_callids,
 		call_ids[0]->ospmCallIdLen,
 		call_ids[0]->ospmCallIdVal,
 		dest_count
@@ -140,14 +137,17 @@ int requestosprouting(struct sip_msg* msg, char* ignore1, char* ignore2) {
 	detail_log);       /* memory location for detaillog to be stored */
 
 	if (res == 0 && dest_count > 0) {
-		LOG(L_INFO, "osp: there is %d osp routes.\n", dest_count);
+		LOG(L_INFO, "osp: there is %d osp routes, call-id '%.*s', transaction-id '%lld'\n",
+			dest_count,call_ids[0]->ospmCallIdLen, call_ids[0]->ospmCallIdVal,get_transaction_id(transaction));
 		record_orig_transaction(msg,transaction,osp_source_dev,e164_source,e164_dest,time_auth);
 		valid = loadosproutes(msg,transaction,dest_count,_device_ip,osp_source_dev,time_auth);
 	} else if (res == 0 && dest_count == 0) {
-		LOG(L_INFO, "osp: there is 0 osp routes, the route is blocked\n");
+		LOG(L_INFO, "osp: there is 0 osp routes, the route is blocked, call-id '%.*s', transaction-id '%lld'\n",
+			call_ids[0]->ospmCallIdLen,call_ids[0]->ospmCallIdVal,get_transaction_id(transaction));
 		valid = MODULE_RETURNCODE_FALSE;
 	} else {
-		LOG(L_ERR, "ERROR: osp: OSPPTransactionRequestAuthorisation returned %i\n", res);
+		LOG(L_ERR, "ERROR: osp: OSPPTransactionRequestAuthorisation returned %i, call-id '%.*s', transaction-id '%lld'\n",
+			res,call_ids[0]->ospmCallIdLen,call_ids[0]->ospmCallIdVal,get_transaction_id(transaction));
 		valid = MODULE_RETURNCODE_FALSE;
 	}
 
@@ -234,16 +234,16 @@ static int loadosproutes(struct sip_msg* msg, OSPTTRANHANDLE transaction, int ex
 		dest->tid = get_transaction_id(transaction);
 		dest->time_auth = time_auth;
 
-		LOG(L_INFO,"osp: getDestination %d returned the following information:\n"
-		"  valid after: %s\n"
-		"  valid until: %s\n"
-		"   time limit: %i seconds\n"
-		"       callid: %.*s\n"
-		"calling number: %s\n"
-		"called number: %s\n"
-		"  destination: %s\n"
-		"   network id: %s\n"
-		"bn token size: %i\n",
+		LOG(L_INFO,"osp: getDestination %d returned the following information: "
+		"valid after '%s' "
+		"valid until '%s' "
+		"time limit '%i' seconds "
+		"call-id '%.*s' "
+		"calling number '%s' "
+		"called number '%s' "
+		"destination '%s' "
+		"network id '%s' "
+		"bn token size '%i' ",
 		count, dest->validafter, dest->validuntil, dest->timelimit, dest->sizeofcallid, dest->callid, dest->callingnumber, dest->callednumber, 
 		dest->destination, dest->network_id, dest->sizeoftoken);
 	}
@@ -316,7 +316,7 @@ int prepareDestination(struct sip_msg* msg, int isFirst) {
 
 		rebuildDestionationUri(&newuri, dest->destination, dest->network_id, dest->callednumber);
 
-		LOG(L_INFO, "osp: Preparing route to uri '%.*s' for call-id '%.*s'\n",newuri.len,newuri.s,dest->sizeofcallid,dest->callid);
+		LOG(L_INFO, "osp: Preparing route to uri '%.*s' for call-id '%.*s' transaction-id '%lld'\n",newuri.len,newuri.s,dest->sizeofcallid,dest->callid,dest->tid);
 
 		if (isFirst == FIRST_ROUTE) {
 			rewrite_uri(msg, &newuri);
