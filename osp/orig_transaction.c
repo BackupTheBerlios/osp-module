@@ -327,8 +327,19 @@ int prepareDestination(struct sip_msg* msg, int isFirst) {
 
 	} else {
 		LOG(L_INFO, "osp: There is no more routes\n");
+
 		reportOrigCallSetUpUsage();
+
+		/* Terminating call set-up usage will be reported before the proxy replies with
+		 * '503 - Service Unavailable' and a tm call back updates the term destination code.
+		 * So, we will do it manually.
+		 * We may need to make 503 configurable, just in case a user decides to reply with
+		 * a different code.  Other options - trigger call-set up usage reporting from the cpl
+		 * (after replying with an error code), or maybe use a different tm callback.
+		 */
+		recordEvent(0,503);
 		reportTermCallSetUpUsage();
+
 		result = MODULE_RETURNCODE_FALSE;
 	}
 
