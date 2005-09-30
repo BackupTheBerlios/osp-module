@@ -237,7 +237,7 @@ void recordEvent(int client_code, int server_code) {
 
 	osp_dest* dest;
 
-	if ((dest=getLastOrigDestination())) {
+	if (client_code!=0 && (dest=getLastOrigDestination())) {
 		recordCode(client_code,dest);
 
 		if (client_code == 487) {
@@ -249,7 +249,7 @@ void recordEvent(int client_code, int server_code) {
 		}
 	} 
 
-	if ((dest=getTermDestination())) {
+	if (server_code!=0 && (dest=getTermDestination())) {
 		recordCode(server_code,dest);
 
 		if (server_code == 487) {
