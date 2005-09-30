@@ -153,10 +153,8 @@ int validateospheader (struct sip_msg* msg, char* ignore1, char* ignore2) {
 				time_limit,dest.sizeofcallid,dest.callid,dest.tid);
 			record_term_transaction(msg,transaction,dest.source,dest.callingnumber,dest.callednumber,dest.time_auth);
 			valid = MODULE_RETURNCODE_TRUE;
-			dest.token_validated = 1;
 		} else {
 			LOG(L_ERR,"ERROR: osp: Token is not valid, code %i\n", res);
-			dest.token_validated = res;
 		}
 		saveTermDestination(&dest);
 	}

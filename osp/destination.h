@@ -60,7 +60,6 @@ struct _osp_dest {
 	time_t time_100;
 	time_t time_180;
 	time_t time_200;
-	int token_validated;
 	unsigned long long tid;
 	int type;
 	int reported;
