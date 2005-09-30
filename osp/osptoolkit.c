@@ -33,32 +33,30 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef OSP_USAGE_MOD_H
-#define OSP_USAGE_MOD_H
 
+
+#include "osptoolkit.h"
 #include "osp/osp.h"
-#include "osp_mod.h"
+#include "osp/osptrans.h"
 #include "../../sr_module.h"
 
-/* This module reports originating and terminating call set up and duration usage
- * for OSP transactions.
- *
- * Call set-up usage is reported based on the osp_dest structures stored as AVPs.
- * It includes OSP transaction id, response codes, start time, alert time,
- * connect time, etc.
- *
- * Duration usage is reported based on the OSP cooky recorded into the route set
- * (using add_rr_param) after requesting routing/authorization on the originating
- * side, and validating authorization on the terminating side.  It include 
- * OSP transaction id, duration, stop time, etc.
- * 
- * Actual conversation duration maybe calculated using connect time (from the call
- * set up usage) and stop time (from the duration usage). 
- */
-void record_orig_transaction(struct sip_msg* msg, OSPTTRANHANDLE transaction, char* uac, char* from, char* to, time_t time_auth);
-void record_term_transaction(struct sip_msg* msg, OSPTTRANHANDLE transaction, char* uac, char* from, char* to, time_t time_auth);
-int  reportospusage(struct sip_msg* msg, char* ignore1, char* ignore2);
-void reportOrigCallSetUpUsage();
-void reportTermCallSetUpUsage();
 
-#endif
+
+unsigned long long get_transaction_id(OSPTTRANHANDLE transaction)
+{
+	OSPTTRANS* context = NULL;
+	int errorcode = 0;
+	unsigned long long id = 0;
+
+	context = OSPPTransactionGetContext(transaction,&errorcode);
+
+	if (0==errorcode) {
+		id = (unsigned long long)context->TransactionID;
+	} else {
+		LOG(L_ERR, "osp:get_transaction_id: failed to extract OSP transaction id from transaction handle %d, error %d\n",transaction,errorcode);
+	}
+
+	return id;
+}
+
+

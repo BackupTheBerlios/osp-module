@@ -38,7 +38,7 @@
 #include "usage.h"
 #include "sipheader.h"
 #include "destination.h"
-#include "osp/osptrans.h"
+#include "osptoolkit.h"
 #include "../../sr_module.h"
 #include "../../usr_avp.h"
 #include <string.h>
@@ -437,19 +437,3 @@ int reportUsageFromDestination(OSPTTRANHANDLE transaction, osp_dest* dest)
 
 
 
-unsigned long long get_transaction_id(OSPTTRANHANDLE transaction)
-{
-	OSPTTRANS* context = NULL;
-	int errorcode = 0;
-	unsigned long long id = 0;
-
-	context = OSPPTransactionGetContext(transaction,&errorcode);
-
-	if (0==errorcode) {
-		id = (unsigned long long)context->TransactionID;
-	} else {
-		LOG(L_ERR, "osp:get_transaction_id: failed to extract OSP transaction id from transaction handle %d, error %d\n",transaction,errorcode);
-	}
-
-	return id;
-}
