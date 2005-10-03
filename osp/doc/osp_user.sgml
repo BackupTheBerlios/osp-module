@@ -4,8 +4,8 @@
   <chapterinfo>
     <revhistory>
       <revision>
-        <revnumber>$Revision: 1.2 $</revnumber>
-        <date>$Date: 2005/09/12 02:00:29 $</date>
+        <revnumber>$Revision: 1.3 $</revnumber>
+        <date>$Date: 2005/10/03 19:09:26 $</date>
       </revision>
     </revhistory>
   </chapterinfo>
@@ -313,6 +313,22 @@ if (prepareallosproute ()) {
   log("successfully prepared the routes, now either forking or redirecting the call\n");
 } else {
   log("could not prepare the route. No destination available\n");
+};
+...
+        </programlisting>
+      </example>
+    </section>
+    <section>
+      <title><function moreinfo="none">reportospusage()</function></title>
+      <para>This function should be called after receiving a BYE message.  If the message contains an OSP cooky, the function will forward originating and/or terminating duration usage information to an OSP server.  The function returns TRUE if the BYE includes an OSP cooky.  The actual usage message will be send on a different thread and will not delay BYE processing.  The function should be called before relaying the message.</para>
+      <example>
+        <title>reportospusage usage</title>
+        <programlisting format="linespecific">
+...
+if (reportospusage ()) {
+  log("OSP call duration usage will be reported\n");
+} else {
+  log("The BYE message does not include OSP information, it was not authorized by an OSP server\n");
 };
 ...
         </programlisting>

@@ -68,9 +68,11 @@
 
                              [27]prepareallosproute()
 
-   [28]Developer's Guide
+                             [28]reportospusage()
 
-   [29]Frequently Asked Questions
+   [29]Developer's Guide
+
+   [30]Frequently Asked Questions
 
    ---------------------------------------------------------------------------
 
@@ -513,6 +515,28 @@ if (prepareallosproute ()) {
 
    ---------------------------------------------------------------------------
 
+  reportospusage()
+
+   This function should be called after receiving a BYE message. If the
+   message contains an OSP cooky, the function will forward originating
+   and/or terminating duration usage information to an OSP server. The
+   function returns TRUE if the BYE includes an OSP cooky. The actual usage
+   message will be send on a different thread and will not delay BYE
+   processing. The function should be called before relaying the message.
+
+   Example 23. reportospusage usage
+
+...                                                                                                  
+if (reportospusage ()) {                                                                             
+  log("OSP call duration usage will be reported\n");                                                 
+} else {                                                                                             
+  log("The BYE message does not include OSP information, it was not authorized by an OSP server\n"); 
+};                                                                                                   
+...                                                                                                  
+                                                                                                     
+
+   ---------------------------------------------------------------------------
+
                                Developer's Guide
 
    Use of the osp modules' functions by other SER modules is not useful.
@@ -520,8 +544,6 @@ if (prepareallosproute ()) {
    ---------------------------------------------------------------------------
 
                            Frequently Asked Questions
-
-   Q: [30]What is missing in the implementation?
 
    Q: [31]What platforms does this module work on?
 
@@ -532,11 +554,6 @@ if (prepareallosproute ()) {
    Q: [34]How do I obtain an OSP server for testing?
 
    Q: [35]How are the exported functions used by the OSP module?
-
-   Q: What is missing in the implementation?
-
-   A: Most importantly, no call detail records are created in the OSP format
-   (OSP UsageIndication messages). This feature will be added in phase 2.
 
    Q: What platforms does this module work on?
 

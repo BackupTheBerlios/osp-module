@@ -4,17 +4,13 @@
   <chapterinfo>
     <revhistory>
       <revision>
-        <revnumber>$Revision: 1.2 $</revnumber>
-        <date>$Date: 2005/09/12 02:00:29 $</date>
+        <revnumber>$Revision: 1.3 $</revnumber>
+        <date>$Date: 2005/10/03 19:09:26 $</date>
       </revision>
     </revhistory>
   </chapterinfo>
   <title>Frequently Asked Questions</title>
   <qandaset>
-    <qandaentry>
-      <question><para>What is missing in the implementation?</para></question>
-      <answer><para>Most importantly, no call detail records are created in the OSP format (OSP UsageIndication messages). This feature will be added in phase 2.</para></answer>
-    </qandaentry>
     <qandaentry>
       <question><para>What platforms does this module work on?</para></question>
       <answer><para>The module has been implemented using linux, the underlying toolkit and the module code itself should compile and work on Solaris, *BSD, and probably most other unix platforms with ssl and pthreads available, but all platforms other than linux are completely untested.</para></answer>
