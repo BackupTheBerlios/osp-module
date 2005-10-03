@@ -89,9 +89,9 @@ int requestosprouting(struct sip_msg* msg, char* ignore1, char* ignore2) {
 
 	
 	res = OSPPTransactionNew(_provider, &transaction);
-	getSourceAddress(msg,osp_source_dev);
-	getFromUserpart(msg, e164_source);
-	getToUserpart(msg, e164_dest);
+	getSourceAddress(msg,osp_source_dev,sizeof(osp_source_dev));
+	getFromUserpart(msg, e164_source,sizeof(e164_source));
+	getToUserpart(msg, e164_dest,sizeof(e164_dest));
 	getCallId(msg, &(call_ids[0]));
 	dest_count = _max_destinations;
 

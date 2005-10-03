@@ -41,15 +41,16 @@
 #define OSP_HEADER        "P-OSP-Auth-Token: "
 #define OSP_HEADER_LEN    strlen(OSP_HEADER)
 
-int  getFromUserpart(    struct sip_msg* msg, char* fromuser);
-int  getToUserpart(      struct sip_msg* msg, char* touser);
+int  getFromUserpart(    struct sip_msg* msg, char* fromuser, int buffer_size);
+int  getToUserpart(      struct sip_msg* msg, char* touser, int buffer_size);
 int  addOspHeader(       struct sip_msg* msg, char* token, int  sizeoftoken);
 int  getOspHeader(       struct sip_msg* msg, char* token, int* sizeoftoken);
-int  getSourceAddress(   struct sip_msg* msg, char* source_address);
+int  getSourceAddress(   struct sip_msg* msg, char* source_address, int buffer_size);
 int  getCallId(          struct sip_msg* msg, OSPTCALLID** callid);
-int  getRouteParams(     struct sip_msg* msg, char* route_params);
+int  getRouteParams(     struct sip_msg* msg, char* route_params, int buffer_size);
 int  rebuildDestionationUri(str *newuri, char *destination, char *port, char *callednumber);
-void getNextHop(struct sip_msg* msg, char* next_hope);
+void getNextHop(struct sip_msg* msg, char* next_hope, int buffer_size);
+void copy_from_str_to_buffer(str* from, char* buffer, int buffer_size);
 
 void skipPlus(char* e164);
 

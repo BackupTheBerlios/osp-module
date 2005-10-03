@@ -124,7 +124,7 @@ int reportospusage(struct sip_msg* msg, char* ignore1, char* ignore2)
 
 	getCallId(msg, &call_id);
 
-	if (getRouteParams(msg,route_params)==0) {
+	if (getRouteParams(msg,route_params,sizeof(route_params))==0) {
 		for (token = strtok_r(route_params,";",&tmp);
 		     token;
 		     token = strtok_r(NULL,";",&tmp)) {
@@ -211,10 +211,10 @@ int reportUsageFromCooky(char* cooky, OSPTCALLID* call_id, int isOrig, struct si
 		}
 	}
 
-	getSourceAddress(msg,first_via);
-	getFromUserpart( msg, from);
-	getToUserpart(   msg, to);
-	getNextHop(      msg, next_hop);
+	getSourceAddress(msg,first_via,sizeof(first_via));
+	getFromUserpart( msg,from,sizeof(from));
+	getToUserpart(   msg,to,sizeof(to));
+	getNextHop(      msg,next_hop,sizeof(next_hop));
 
 	if (strcmp(first_via,user_agent_client)==0) {
 		LOG(L_INFO,"osp: Originator '%s' released the call, call-id '%.*s', transaction-id '%lld'\n",
