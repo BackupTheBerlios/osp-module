@@ -37,3 +37,7 @@ Version: 0.1.2
    o Bug 5111 - fixed typos in error messages.
    o Bug 5153 - removed trailing binary chars from P-OSP-Auth-Token header
                 value.
+
+Version: 0.2.0
+   o Report OSP usage indications after the call set-up and tear down
+     transactions complete.
