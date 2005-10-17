@@ -124,7 +124,7 @@ int reportospusage(struct sip_msg* msg, char* ignore1, char* ignore2)
 
 	getCallId(msg, &call_id);
 
-	if (getRouteParams(msg,route_params,sizeof(route_params))==0) {
+	if (call_id!=NULL && getRouteParams(msg,route_params,sizeof(route_params))==0) {
 		for (token = strtok_r(route_params,";",&tmp);
 		     token;
 		     token = strtok_r(NULL,";",&tmp)) {
