@@ -67,7 +67,6 @@ struct _osp_dest {
 
 typedef struct _osp_dest osp_dest;
 
-osp_dest* createDestination();
 osp_dest* initDestination(osp_dest* dest);
 
 osp_dest* getNextOrigDestination();

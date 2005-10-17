@@ -52,27 +52,6 @@ static void recordCode(int code, osp_dest* dest);
 
 
 
-/**
- * Allocate new osp destination and pre-set initial values
- *
- * Returns: NULL on failure
- */
-osp_dest* createDestination() {
-	osp_dest* dest;
-
-	DBG("osp: Creating osp destination\n");
-
-	dest = (osp_dest*) pkg_malloc(sizeof(osp_dest));
-
-	if (dest != NULL) {
-		initDestination(dest);
-	} else {
-		LOG(L_ERR, "ERROR: osp: createDestination: Failed to allocate memory for an osp destination\n");
-	}
-	
-	return dest;
-}
-
 osp_dest* initDestination(osp_dest* dest) {
 
 	memset(dest,0,sizeof(osp_dest));
