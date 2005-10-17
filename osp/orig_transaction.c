@@ -268,7 +268,7 @@ static int loadosproutes(struct sip_msg* msg, OSPTTRANHANDLE transaction, int ex
 int preparefirstosproute(struct sip_msg* msg, char* ignore1, char* ignore2) {
 	int result = MODULE_RETURNCODE_TRUE;
 
-	LOG(L_INFO, "osp: Preparing 1st route\n");
+	DBG("osp: Preparing 1st route\n");
 
 	result = prepareDestination(msg,FIRST_ROUTE);
 
@@ -281,7 +281,7 @@ int preparefirstosproute(struct sip_msg* msg, char* ignore1, char* ignore2) {
 int preparenextosproute(struct sip_msg* msg, char* ignore1, char* ignore2) {
 	int result = MODULE_RETURNCODE_TRUE;
 
-	LOG(L_INFO, "osp: Preparing next route\n");
+	DBG("osp: Preparing next route\n");
 
 	result = prepareDestination(msg,NEXT_ROUTE);
 
@@ -326,7 +326,7 @@ int prepareDestination(struct sip_msg* msg, int isFirst) {
 		}
 
 	} else {
-		LOG(L_INFO, "osp: There is no more routes\n");
+		DBG("osp: There is no more routes\n");
 
 		reportOrigCallSetUpUsage();
 
