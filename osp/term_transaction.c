@@ -90,8 +90,6 @@ int validateospheader (struct sip_msg* msg, char* ignore1, char* ignore2) {
 
 	initDestination(&dest);
 
-	getSourceAddress(msg,dest.source,sizeof(dest.source));
-
 	if (0!= (res=OSPPTransactionNew(_provider, &transaction))) {
 		LOG(L_ERR, "ERROR: osp: Failed to create a new OSP transaction id %d\n",res);
 	} else if (0 != getFromUserpart(msg, dest.callingnumber, sizeof(dest.callingnumber))) {
@@ -100,6 +98,8 @@ int validateospheader (struct sip_msg* msg, char* ignore1, char* ignore2) {
 		LOG(L_ERR, "ERROR: osp: Failed to extract called number\n");
 	} else if (0 != getCallId(msg, &call_id)) {
 		LOG(L_ERR, "ERROR: osp: Failed to extract call id\n");
+	} else if (0 != getSourceAddress(msg,dest.source,sizeof(dest.source))) {
+		LOG(L_ERR, "ERROR: osp: Failed to extract source address\n");
 	} else if (0 != getOspHeader(msg, token, &sizeoftoken)) {
 		LOG(L_ERR, "ERROR: osp: Failed to extract OSP authorization token\n");
 	} else {

@@ -189,7 +189,11 @@ int getCallId(struct sip_msg* msg, OSPTCALLID** callid) {
 
 	if (cid != NULL) {
 		*callid = OSPPCallIdNew(cid->body.len,cid->body.s);
-		retVal = 0;
+		if (*callid) {
+			retVal = 0;
+		} else {
+			LOG(L_ERR, "ERROR: osp: getCallId: failed to allocate call-id object for '%.*s'\n",cid->body.len,cid->body.s);
+		}
 	} else {
 		LOG(L_ERR, "ERROR: osp: getCallId: could not find Call-Id-Header\n");
 	}	

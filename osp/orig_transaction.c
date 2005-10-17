@@ -83,79 +83,84 @@ int requestosprouting(struct sip_msg* msg, char* ignore1, char* ignore2) {
 
 	time_auth = time(NULL);
 
-
-
-
-
-	
-	res = OSPPTransactionNew(_provider, &transaction);
-	getSourceAddress(msg,osp_source_dev,sizeof(osp_source_dev));
-	getFromUserpart(msg, e164_source,sizeof(e164_source));
-	getToUserpart(msg, e164_dest,sizeof(e164_dest));
-	getCallId(msg, &(call_ids[0]));
 	dest_count = _max_destinations;
 
-
-	LOG(L_INFO,"osp: Requesting OSP authorization and routing for: "
-		"osp_source '%s' "
-		"osp_source_port '%s' "
-		"osp_source_dev '%s' "
-		"e164_source '%s' "
-		"e164_dest '%s' "
-		"call-id '%.*s' "
-		"dest_count '%i'",
-		_device_ip,
-		_device_port,
-		osp_source_dev,
-		e164_source,
-		e164_dest,
-		call_ids[0]->ospmCallIdLen,
-		call_ids[0]->ospmCallIdVal,
-		dest_count
-	);	
-
-
-	if (strlen(_device_port) > 0) {
-		OSPPTransactionSetNetworkIds(transaction,_device_port,"");
-	}
-
-	/* try to request authorization */
-	res = OSPPTransactionRequestAuthorisation(
-	transaction,       /* transaction handle */
-	_device_ip,         /* from the configuration file */
-	osp_source_dev,    /* source of call, protocol specific */
-	e164_source,       /* calling number in nodotted e164 notation */
-	OSPC_E164,
-	e164_dest,         /* called number */
-	OSPC_E164,
-	"",                /* optional username string, used if no number */
-	number_callids,    /* number of call ids, here always 1 */
-	call_ids,          /* sized-1 array of call ids */
-	preferred,         /* preferred destinations, here always NULL */
-	&dest_count,       /* max destinations, after call dest_count */
-	&log_size,          /* size allocated for detaillog (next param) 0=no log */
-	detail_log);       /* memory location for detaillog to be stored */
-
-	if (res == 0 && dest_count > 0) {
-		LOG(L_INFO, "osp: there is %d osp routes, call-id '%.*s', transaction-id '%lld'\n",
-			dest_count,call_ids[0]->ospmCallIdLen, call_ids[0]->ospmCallIdVal,get_transaction_id(transaction));
-		record_orig_transaction(msg,transaction,osp_source_dev,e164_source,e164_dest,time_auth);
-		valid = loadosproutes(msg,transaction,dest_count,_device_ip,osp_source_dev,time_auth);
-	} else if (res == 0 && dest_count == 0) {
-		LOG(L_INFO, "osp: there is 0 osp routes, the route is blocked, call-id '%.*s', transaction-id '%lld'\n",
-			call_ids[0]->ospmCallIdLen,call_ids[0]->ospmCallIdVal,get_transaction_id(transaction));
-		valid = MODULE_RETURNCODE_FALSE;
+	if (0!= (res=OSPPTransactionNew(_provider, &transaction))) {
+		LOG(L_ERR, "ERROR: osp: Failed to create a new OSP transaction id %d\n",res);
+	} else if (0 != getFromUserpart(msg, e164_source,sizeof(e164_source))) {
+		LOG(L_ERR, "ERROR: osp: Failed to extract calling number\n");
+	} else if (0 != getToUserpart(msg, e164_dest,sizeof(e164_dest))) {
+		LOG(L_ERR, "ERROR: osp: Failed to extract called number\n");
+	} else if (0 != getCallId(msg, &(call_ids[0]))) {
+		LOG(L_ERR, "ERROR: osp: Failed to extract call id\n");
+	} else if (0 != getSourceAddress(msg,osp_source_dev,sizeof(osp_source_dev))) {
+		LOG(L_ERR, "ERROR: osp: Failed to extract source address\n");
 	} else {
-		LOG(L_ERR, "ERROR: osp: OSPPTransactionRequestAuthorisation returned %i, call-id '%.*s', transaction-id '%lld'\n",
-			res,call_ids[0]->ospmCallIdLen,call_ids[0]->ospmCallIdVal,get_transaction_id(transaction));
-		valid = MODULE_RETURNCODE_FALSE;
+		LOG(L_INFO,"osp: Requesting OSP authorization and routing for: "
+			"transaction-handle '%i' \n"
+			"osp_source '%s' "
+			"osp_source_port '%s' "
+			"osp_source_dev '%s' "
+			"e164_source '%s' "
+			"e164_dest '%s' "
+			"call-id '%.*s' "
+			"dest_count '%i'",
+			transaction,
+			_device_ip,
+			_device_port,
+			osp_source_dev,
+			e164_source,
+			e164_dest,
+			call_ids[0]->ospmCallIdLen,
+			call_ids[0]->ospmCallIdVal,
+			dest_count
+		);	
+
+
+		if (strlen(_device_port) > 0) {
+			OSPPTransactionSetNetworkIds(transaction,_device_port,"");
+		}
+
+		/* try to request authorization */
+		res = OSPPTransactionRequestAuthorisation(
+		transaction,       /* transaction handle */
+		_device_ip,         /* from the configuration file */
+		osp_source_dev,    /* source of call, protocol specific */
+		e164_source,       /* calling number in nodotted e164 notation */
+		OSPC_E164,
+		e164_dest,         /* called number */
+		OSPC_E164,
+		"",                /* optional username string, used if no number */
+		number_callids,    /* number of call ids, here always 1 */
+		call_ids,          /* sized-1 array of call ids */
+		preferred,         /* preferred destinations, here always NULL */
+		&dest_count,       /* max destinations, after call dest_count */
+		&log_size,          /* size allocated for detaillog (next param) 0=no log */
+		detail_log);       /* memory location for detaillog to be stored */
+
+		if (res == 0 && dest_count > 0) {
+			LOG(L_INFO, "osp: there is %d osp routes, call-id '%.*s', transaction-id '%lld'\n",
+				dest_count,call_ids[0]->ospmCallIdLen, call_ids[0]->ospmCallIdVal,get_transaction_id(transaction));
+			record_orig_transaction(msg,transaction,osp_source_dev,e164_source,e164_dest,time_auth);
+			valid = loadosproutes(msg,transaction,dest_count,_device_ip,osp_source_dev,time_auth);
+		} else if (res == 0 && dest_count == 0) {
+			LOG(L_INFO, "osp: there is 0 osp routes, the route is blocked, call-id '%.*s', transaction-id '%lld'\n",
+				call_ids[0]->ospmCallIdLen,call_ids[0]->ospmCallIdVal,get_transaction_id(transaction));
+			valid = MODULE_RETURNCODE_FALSE;
+		} else {
+			LOG(L_ERR, "ERROR: osp: OSPPTransactionRequestAuthorisation returned %i, call-id '%.*s', transaction-id '%lld'\n",
+				res,call_ids[0]->ospmCallIdLen,call_ids[0]->ospmCallIdVal,get_transaction_id(transaction));
+			valid = MODULE_RETURNCODE_FALSE;
+		}
 	}
 
 	if (call_ids[0]!=NULL) {
 		OSPPCallIdDelete(&(call_ids[0]));
 	}
 
-	OSPPTransactionDelete(transaction);
+	if (transaction!=-1) {
+		OSPPTransactionDelete(transaction);
+	}
 	
 	return valid;
 }
