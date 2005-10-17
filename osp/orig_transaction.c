@@ -81,6 +81,8 @@ int requestosprouting(struct sip_msg* msg, char* ignore1, char* ignore2) {
 	OSPTTRANHANDLE transaction = -1;
 	time_t time_auth;
 
+	valid = MODULE_RETURNCODE_FALSE;
+
 	time_auth = time(NULL);
 
 	dest_count = _max_destinations;
@@ -146,11 +148,9 @@ int requestosprouting(struct sip_msg* msg, char* ignore1, char* ignore2) {
 		} else if (res == 0 && dest_count == 0) {
 			LOG(L_INFO, "osp: there is 0 osp routes, the route is blocked, call-id '%.*s', transaction-id '%lld'\n",
 				call_ids[0]->ospmCallIdLen,call_ids[0]->ospmCallIdVal,get_transaction_id(transaction));
-			valid = MODULE_RETURNCODE_FALSE;
 		} else {
 			LOG(L_ERR, "ERROR: osp: OSPPTransactionRequestAuthorisation returned %i, call-id '%.*s', transaction-id '%lld'\n",
 				res,call_ids[0]->ospmCallIdLen,call_ids[0]->ospmCallIdVal,get_transaction_id(transaction));
-			valid = MODULE_RETURNCODE_FALSE;
 		}
 	}
 
