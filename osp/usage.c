@@ -259,7 +259,7 @@ int reportUsageFromCooky(char* cooky, OSPTCALLID* call_id, int isOrig, struct si
 
 	report_usage(
 		transaction_handle,
-		1016,
+		10016,
 		end_time - auth_time,
 		auth_time,
 		end_time,
