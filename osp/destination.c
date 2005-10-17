@@ -48,6 +48,7 @@ str TERM_OSPDESTS_LABEL = {"term_osp_dests",14};
 static int saveDestination(osp_dest* dest, str* label);
 static osp_dest* getLastOrigDestination();
 static void recordCode(int code, osp_dest* dest);
+static int isTimeToReportUsage(int code);
 
 
 
@@ -219,11 +220,7 @@ void recordEvent(int client_code, int server_code) {
 	if (client_code!=0 && (dest=getLastOrigDestination())) {
 		recordCode(client_code,dest);
 
-		if (client_code == 487) {
-			DBG("487 - Time to report orig call set up usage\n");
-			reportOrigCallSetUpUsage();
-		} else if (client_code == 200) {
-			DBG("200 - Time to report orig call set up usage\n");
+		if (isTimeToReportUsage(client_code)==0) {
 			reportOrigCallSetUpUsage();
 		}
 	} 
@@ -231,14 +228,33 @@ void recordEvent(int client_code, int server_code) {
 	if (server_code!=0 && (dest=getTermDestination())) {
 		recordCode(server_code,dest);
 
-		if (server_code == 487) {
-			DBG("487 - Time to report term call set up usage\n");
-			reportTermCallSetUpUsage();
-		} else if (server_code == 200) {
-			DBG("200 - Time to report term call set up usage\n");
+		if (isTimeToReportUsage(server_code)==0) {
 			reportTermCallSetUpUsage();
 		}
 	}
+}
+
+
+
+static int isTimeToReportUsage(int code)
+{
+	int isTime;
+
+	switch (code) {
+		case 200:
+		case 202:
+		case 487:
+			isTime = 0;
+			DBG("Time to report call set up usage for code '%d'\n",code);
+			break;
+
+		default:
+			isTime = -1;
+			DBG("Do not report call set up usage for code '%d' yet\n",code);
+			break;
+	}
+
+	return isTime;
 }
 
 
