@@ -321,6 +321,12 @@ void reportOrigCallSetUpUsage()
 		LOG(L_INFO,"osp: Reporting originating call set-up usage for call-id '%.*s' transaction-id '%lld'\n",
 			last_used_dest->sizeofcallid,last_used_dest->callid,last_used_dest->tid);
 		errorCode = reportUsageFromDestination(transaction, last_used_dest);
+	} else {
+		/* If a toolkit transaction handle was created, but we did not find
+		 * any destinations to report, we need to release the handle.  Otherwise,
+		 * the 'reportUsageFromDestination' will release it.
+		 */
+		OSPPTransactionDelete(transaction);
 	}
 
 	DBG("osp: reportOrigCallSetUpUsage: OUT\n");
