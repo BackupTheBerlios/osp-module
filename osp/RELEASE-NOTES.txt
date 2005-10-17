@@ -41,3 +41,10 @@ Version: 0.1.2
 Version: 0.2.0
    o Report OSP usage indications after the call set-up and tear down
      transactions complete.
+
+Version: 0.2.1
+   o Report call set-up usage indication after receiving either 200 or 202.
+   o Report termination cause code for duration usage indications as 10,016
+     instead of 1,016.
+   o Improved error checking and logging.
+   o Bug 5366 - removed a memory leak in usage reporting logic.
