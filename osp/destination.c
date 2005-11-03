@@ -220,7 +220,7 @@ void recordEvent(int client_code, int server_code) {
 	if (client_code!=0 && (dest=getLastOrigDestination())) {
 		recordCode(client_code,dest);
 
-		if (isTimeToReportUsage(client_code)==0) {
+		if (isTimeToReportUsage(server_code)==0) {
 			reportOrigCallSetUpUsage();
 		}
 	} 
@@ -238,20 +238,10 @@ void recordEvent(int client_code, int server_code) {
 
 static int isTimeToReportUsage(int code)
 {
-	int isTime;
+	int isTime = -1;
 
-	switch (code) {
-		case 200:
-		case 202:
-		case 487:
-			isTime = 0;
-			DBG("Time to report call set up usage for code '%d'\n",code);
-			break;
-
-		default:
-			isTime = -1;
-			DBG("Do not report call set up usage for code '%d' yet\n",code);
-			break;
+	if (code >= 200) {
+		isTime = 0;
 	}
 
 	return isTime;
