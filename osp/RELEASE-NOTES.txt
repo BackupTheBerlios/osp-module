@@ -48,3 +48,10 @@ Version: 0.2.1
      instead of 1,016.
    o Improved error checking and logging.
    o Bug 5366 - removed a memory leak in usage reporting logic.
+
+Version: 0.2.2
+   o Bug 5532 - Added a sample configuration file for OpenSER 0.9.5.
+   o Bug 5110 and 5531 - Updated the sample configuration files to not
+     fail-over on 486 - user busy and 408 - user not available.
+   o Bug 5535 - The module will report call set-up usage reporting after
+     sending any final response code to UAC.
