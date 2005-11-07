@@ -4,13 +4,13 @@
   <chapterinfo>
     <revhistory>
       <revision>
-        <revnumber>$Revision: 1.1 $</revnumber>
-        <date>$Date: 2005/08/23 02:27:50 $</date>
+        <revnumber>$Revision: 1.2 $</revnumber>
+        <date>$Date: 2005/11/07 20:19:38 $</date>
       </revision>
     </revhistory>
   </chapterinfo>
   <title>Developer's Guide</title>
-  <para>Use of the osp modules' functions by other SER modules is not useful.</para>
+  <para>The functions of the OSP modules are not used by other SER modules.</para>
 </chapter>
 
 <!-- Keep this element at the end of the file
